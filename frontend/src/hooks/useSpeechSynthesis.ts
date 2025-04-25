@@ -1,166 +1,103 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TTSService } from '../services/TTSService';
 
-interface UseSpeechSynthesisProps {
-  text: string;
+interface SpeechOptions {
   voice?: string;
   rate?: number;
   pitch?: number;
-  useGoogleTTS?: boolean;
+  onEnd?: () => void;
 }
 
 interface UseSpeechSynthesisReturn {
-  speak: () => Promise<void>;
-  stop: () => void;
-  isPending: boolean;
-  isSpeaking: boolean;
-  phonemes: string[];
-  error: Error | null;
+  speak: (text: string, options?: SpeechOptions) => Promise<void>;
+  cancel: () => void;
+  speaking: boolean;
+  getPhonemes: (text: string) => Promise<string[]>;
 }
 
-export const useSpeechSynthesis = ({
-  text,
-  voice = '',
-  rate = 1,
-  pitch = 1,
-  useGoogleTTS = true
-}: UseSpeechSynthesisProps): UseSpeechSynthesisReturn => {
-  const [isPending, setIsPending] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-  const [phonemes, setPhonemes] = useState<string[]>([]);
-  const [error, setError] = useState<Error | null>(null);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+export const useSpeechSynthesis = (): UseSpeechSynthesisReturn => {
+  const [speaking, setSpeaking] = useState<boolean>(false);
+  const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
-  // 컴포넌트 마운트 시 오디오 요소 생성
-  useEffect(() => {
-    const audio = new Audio();
-    setAudioElement(audio);
+  // 브라우저의 TTS 엔진 사용
+  const speak = useCallback(async (text: string, options: SpeechOptions = {}) => {
+    const { voice, rate = 1, pitch = 1, onEnd } = options;
+
+    // 이전 발화 취소
+    cancel();
+
+    // 새 발화 생성
+    const newUtterance = new SpeechSynthesisUtterance(text);
     
-    return () => {
-      audio.pause();
-      if (audio.src) {
-        URL.revokeObjectURL(audio.src);
-      }
+    // 음성 설정
+    if (voice) {
+      const voices = window.speechSynthesis.getVoices();
+      const selectedVoice = voices.find(v => v.name === voice);
+      if (selectedVoice) newUtterance.voice = selectedVoice;
+    }
+    
+    // 속도, 피치 설정
+    newUtterance.rate = rate;
+    newUtterance.pitch = pitch;
+    
+    // 이벤트 핸들러
+    newUtterance.onstart = () => setSpeaking(true);
+    newUtterance.onend = () => {
+      setSpeaking(false);
+      if (onEnd) onEnd();
     };
+    newUtterance.onerror = () => {
+      setSpeaking(false);
+      if (onEnd) onEnd();
+    };
+    
+    setUtterance(newUtterance);
+    window.speechSynthesis.speak(newUtterance);
+    
+    // Promise로 반환
+    return new Promise<void>((resolve) => {
+      newUtterance.onend = () => {
+        setSpeaking(false);
+        if (onEnd) onEnd();
+        resolve();
+      };
+    });
   }, []);
 
-  // 음성 생성 및 재생
-  const speak = useCallback(async () => {
-    if (!text.trim() || !audioElement) return;
-    
-    try {
-      setIsPending(true);
-      setError(null);
-      
-      // 기존 오디오 정리
-      audioElement.pause();
-      if (audioElement.src) {
-        URL.revokeObjectURL(audioElement.src);
+  // 발화 취소
+  const cancel = useCallback(() => {
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+  }, []);
+
+  // 음소 추출 (실제로는 백엔드 API를 호출하거나 다른 방법을 사용해야 함)
+  const getPhonemes = useCallback(async (text: string): Promise<string[]> => {
+    // 여기서는 간단한 예시로 텍스트를 단어로 나누고, 각 단어에 대해 간단한 음소 배열을 반환
+    return text.split(/\s+/).flatMap(word => {
+      // 실제로는 훨씬 더 정교한 알고리즘이 필요
+      const phonemes: string[] = [];
+      for (let i = 0; i < word.length; i++) {
+        const char = word[i].toLowerCase();
+        if ('aeiou'.includes(char)) {
+          phonemes.push('AA'); // 모음
+        } else {
+          phonemes.push('B');  // 자음
+        }
       }
-      
-      let audioData;
-      let phonemeData: string[] = [];
-      
-      if (useGoogleTTS) {
-        // Google TTS 서비스 사용
-        const result = await TTSService.synthesize(text, {
-          voice,
-          rate,
-          pitch,
-          returnPhonemes: true
-        });
-        audioData = result.audioData;
-        phonemeData = result.phonemes;
-      } else {
-        // 브라우저 내장 TTS 사용
-        return new Promise<void>((resolve) => {
-          const utterance = new SpeechSynthesisUtterance(text);
-          
-          if (voice) {
-            const voices = window.speechSynthesis.getVoices();
-            const selectedVoice = voices.find(v => v.name === voice);
-            if (selectedVoice) utterance.voice = selectedVoice;
-          }
-          
-          utterance.rate = rate;
-          utterance.pitch = pitch;
-          
-          utterance.onstart = () => {
-            setIsSpeaking(true);
-            // 브라우저 TTS는 음소 정보를 제공하지 않으므로 기본 패턴 사용
-            const basicPhonemes = text.split(' ').flatMap(word => 
-              word.split('').map(char => {
-                // 간단한 모음/자음 구분
-                const vowels = 'aeiouAEIOU';
-                return vowels.includes(char) ? 'AA' : 'B';
-              })
-            );
-            setPhonemes(basicPhonemes);
-          };
-          
-          utterance.onend = () => {
-            setIsSpeaking(false);
-            setPhonemes([]);
-            resolve();
-          };
-          
-          utterance.onerror = (event) => {
-            setError(new Error(`Speech synthesis error: ${event.error}`));
-            setIsSpeaking(false);
-            resolve();
-          };
-          
-          window.speechSynthesis.speak(utterance);
-        });
-      }
-      
-      // Google TTS에서 받은 오디오 데이터 처리
-      const audioBlob = new Blob([audioData], { type: 'audio/mp3' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      audioElement.src = audioUrl;
-      
-      // 음소 데이터 설정
-      setPhonemes(phonemeData);
-      
-      // 오디오 이벤트 리스너 설정
-      audioElement.onplay = () => setIsSpeaking(true);
-      audioElement.onended = () => {
-        setIsSpeaking(false);
-        setPhonemes([]);
-      };
-      audioElement.onerror = (e) => {
-        setError(new Error('Audio playback error'));
-        setIsSpeaking(false);
-      };
-      
-      // 오디오 재생
-      await audioElement.play();
-      
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown TTS error'));
-    } finally {
-      setIsPending(false);
-    }
-  }, [text, voice, rate, pitch, useGoogleTTS, audioElement]);
-  
-  // 음성 중지
-  const stop = useCallback(() => {
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
-    } else {
-      window.speechSynthesis.cancel();
-    }
-    setIsSpeaking(false);
-    setPhonemes([]);
-  }, [audioElement]);
+      return phonemes;
+    });
+  }, []);
+
+  // 컴포넌트 언마운트 시 정리
+  useEffect(() => {
+    return () => {
+      cancel();
+    };
+  }, [cancel]);
 
   return {
     speak,
-    stop,
-    isPending,
-    isSpeaking,
-    phonemes,
-    error
+    cancel,
+    speaking,
+    getPhonemes
   };
 };

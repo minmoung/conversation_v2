@@ -31,7 +31,8 @@ const LessonCard: React.FC<{ lesson: Lesson; onSelect: (id: string) => void }> =
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { allLessons, fetchAllLessons, isLoading: lessonsLoading } = useLessonContext();
+  //const { allLessons, fetchAllLessons, isLoading: lessonsLoading } = useLessonContext();
+  const { allLessons, isLoading: lessonsLoading } = useLessonContext();
   
   const [welcomeMessage, setWelcomeMessage] = useState<string>('');
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
@@ -54,6 +55,7 @@ const Home: React.FC = () => {
   
   // 레슨 선택 처리
   const handleSelectLesson = (lessonId: string) => {
+    console.log(`Selected lesson ID: ${lessonId}`);
     navigate(`/lesson/${lessonId}`);
   };
   
@@ -81,7 +83,7 @@ const Home: React.FC = () => {
   
   // 컴포넌트 마운트 시 레슨 데이터 로드
   useEffect(() => {
-    fetchAllLessons();
+    //fetchAllLessons();
   }, []);
   
   // 로딩 상태 표시
@@ -208,6 +210,7 @@ const Home: React.FC = () => {
       </main>
       
       <div className="quick-start-fab" onClick={() => {
+        alert(allLessons);
         if (allLessons.length > 0) {
           handleSelectLesson(allLessons[0].id);
         }

@@ -7,14 +7,12 @@ import ProgressBar from '../components/ProgressBar/ProgressBar';
 import AudioControls from '../components/AudioControls/AudioControls';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis';
-import { LessonContent } from '../types/lesson';
+import { LessonContent, Dialogue } from '../types/lesson';
 import { fetchLessonById } from '../services/api';
 
 const Lesson: React.FC = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
-  // const { currentLesson, setCurrentLesson, userProgress, updateProgress } = useLessonContext();
-  const { currentLesson, setCurrentLesson, userProgress, updateUserProgress } = useLessonContext();
+  const { setCurrentLesson, updateUserProgress } = useLessonContext();
   
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentDialogueIndex, setCurrentDialogueIndex] = useState<number>(0);
@@ -22,10 +20,10 @@ const Lesson: React.FC = () => {
   const [currentPhonemes, setCurrentPhonemes] = useState<string[]>([]);
   const [speechRate, setSpeechRate] = useState<number>(1); // 기본 말하기 속도
   const [feedback, setFeedback] = useState<string>('');
+  const [lessonData, setLessonData] = useState<LessonContent | null>(null);
   
-  const { startRecording, stopRecording, audioBlob } = useAudioRecorder();
+  const { startRecording, stopRecording, audioBlob, isRecording: isAudioRecording } = useAudioRecorder();
   const { transcript, isListening, startListening, stopListening } = useSpeechRecognition();
-  const { speak, cancel, speaking, getPhonemes } = useSpeechSynthesis();
 
   // 레슨 데이터 불러오기
   useEffect(() => {
@@ -34,7 +32,8 @@ const Lesson: React.FC = () => {
         setIsLoading(true);
         try {
           const lessonData = await fetchLessonById(lessonId);
-          //setCurrentLesson(lessonData);
+          setLessonData(lessonData);
+          setCurrentLesson(lessonData.id);
         } catch (error) {
           console.error('Failed to load lesson:', error);
         } finally {
@@ -48,7 +47,7 @@ const Lesson: React.FC = () => {
 
   // 대화 진행
   const handleNext = () => {
-    //if (!currentLesson || currentDialogueIndex >= currentLesson.dialogues.length - 1) return;
+    if (!lessonData || currentDialogueIndex >= lessonData.dialogues.length - 1) return;
     
     setCurrentDialogueIndex(prev => prev + 1);
     setFeedback('');
@@ -64,59 +63,53 @@ const Lesson: React.FC = () => {
 
   // 선생님 말하기 실행
   const handleTeacherSpeak = async () => {
-    if (!currentLesson) return;
+    if (!lessonData) return;
     
-    //const dialogue = currentLesson.dialogues[currentDialogueIndex];
+    const dialogue = lessonData.dialogues[currentDialogueIndex];
     const teacherLine = dialogue.teacherLine;
     
     setIsSpeaking(true);
     
-    // 발음 정보 가져오기 (입 동기화용)
-    const phonemes = await getPhonemes(teacherLine);
-    setCurrentPhonemes(phonemes);
+    // 간단한 시뮬레이션 (실제로는 TTS 서비스를 사용하겠지만 여기선 타이머로 대체)
+    const mockPhonemes = teacherLine.split(' ').flatMap(word => 
+      ['AA', 'B', 'EH', 'D', 'F', 'G', 'IY'].slice(0, Math.ceil(word.length / 2))
+    );
+    setCurrentPhonemes(mockPhonemes);
     
-    // 선생님 말하기 실행
-    await speak(teacherLine, {
-      rate: speechRate,
-      onEnd: () => {
-        setIsSpeaking(false);
-        setCurrentPhonemes([]);
-      }
-    });
+    // 말하기 시뮬레이션
+    setTimeout(() => {
+      setIsSpeaking(false);
+      setCurrentPhonemes([]);
+    }, teacherLine.length * 100 / speechRate);
   };
 
   // 학생 응답 평가
   const evaluateStudentResponse = async () => {
-    if (!currentLesson || !transcript) return;
+    if (!lessonData || !transcript || !lessonId) return;
     
-    const expectedResponse = currentLesson.dialogues[currentDialogueIndex].studentLine;
+    const expectedResponse = lessonData.dialogues[currentDialogueIndex].studentLine;
     
-    try {
-      // 백엔드에 학생 응답 전송하여 평가 받기
-      const response = await fetch('/api/evaluate-response', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          expectedResponse,
-          studentResponse: transcript,
-          lessonId,
-          dialogueIndex: currentDialogueIndex
-        }),
-      });
-      
-      const result = await response.json();
-      setFeedback(result.feedback);
-      
-      // 진행 상황 업데이트
-      if (result.score > 0.7) {
-        updateProgress(lessonId, currentDialogueIndex);
-      }
-    } catch (error) {
-      console.error('Error evaluating response:', error);
-      setFeedback('평가 중 오류가 발생했습니다.');
+    // 간단한 평가 로직 (실제로는 백엔드 API를 호출)
+    const similarityScore = calculateSimilarity(transcript, expectedResponse);
+    
+    // 피드백 설정
+    if (similarityScore > 0.7) {
+      setFeedback('잘했어요! 발음이 아주 좋습니다.');
+      updateUserProgress(lessonId, 10); // 10 포인트 부여
+    } else if (similarityScore > 0.4) {
+      setFeedback('좋아요! 조금 더 연습해보세요.');
+    } else {
+      setFeedback('다시 한번 시도해보세요.');
     }
+  };
+
+  // 간단한 유사도 계산 함수 (실제로는 더 정교한 알고리즘 사용)
+  const calculateSimilarity = (a: string, b: string): number => {
+    const aLower = a.toLowerCase();
+    const bLower = b.toLowerCase();
+    //const commonChars = [...aLower].filter(char => bLower.includes(char)).length;
+    const commonChars = Array.from(aLower).filter(char => bLower.includes(char)).length;
+    return commonChars / Math.max(aLower.length, bLower.length);
   };
 
   // 말하기 속도 조절
@@ -141,11 +134,11 @@ const Lesson: React.FC = () => {
     return <div className="flex items-center justify-center h-screen">로딩 중...</div>;
   }
 
-  if (!currentLesson) {
+  if (!lessonData) {
     return <div className="flex items-center justify-center h-screen">레슨을 찾을 수 없습니다.</div>;
   }
 
-  const currentDialogue = currentLesson.dialogues[currentDialogueIndex];
+  const currentDialogue = lessonData.dialogues[currentDialogueIndex];
 
   return (
     <div className="flex flex-col h-screen bg-blue-50">
@@ -153,8 +146,8 @@ const Lesson: React.FC = () => {
       <div className="p-4 bg-white shadow">
         <ProgressBar 
           current={currentDialogueIndex + 1} 
-          total={currentLesson.dialogues.length}
-          completed={userProgress[lessonId]?.completedDialogues || []}
+          total={lessonData.dialogues.length}
+          completed={[]} // 실제 앱에서는 완료된 대화 ID를 넣어주세요
         />
       </div>
       
@@ -163,12 +156,10 @@ const Lesson: React.FC = () => {
         {/* 선생님 아바타 및 음성 */}
         <div className="relative w-full max-w-md h-64 bg-white rounded-lg shadow-md mb-8">
           <TeacherAvatar 
-            character={currentLesson.teacherCharacter} 
-            expression={isSpeaking ? 'speaking' : 'idle'} 
-          />
-          <MouthSync 
-            active={isSpeaking} 
+            speaking={isSpeaking}
             phonemes={currentPhonemes}
+            emotion="normal"
+            speedMultiplier={speechRate}
           />
           
           {/* 말하기 속도 조절 */}
@@ -240,7 +231,7 @@ const Lesson: React.FC = () => {
         </button>
         <button 
           onClick={handleNext}
-          disabled={currentDialogueIndex >= currentLesson.dialogues.length - 1}
+          disabled={currentDialogueIndex >= lessonData.dialogues.length - 1}
           className="bg-blue-500 text-white py-2 px-6 rounded disabled:opacity-50"
         >
           다음

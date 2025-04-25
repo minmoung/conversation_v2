@@ -25,7 +25,7 @@ interface AuthContextActions {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (userData: Partial<User>) => Promise<void>;
+  //updateProfile: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
   checkAuthStatus: () => Promise<boolean>;
 }
@@ -42,7 +42,7 @@ const defaultAuthContext: AuthContextType = {
   login: async () => {},
   register: async () => {},
   logout: async () => {},
-  updateProfile: async () => {},
+  //updateProfile: async () => {},
   clearError: () => {},
   checkAuthStatus: async () => false
 };
@@ -158,28 +158,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // 프로필 업데이트
-  const updateProfile = async (userData: Partial<User>) => {
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+  // const updateProfile = async (userData: Partial<User>) => {
+  //   try {
+  //     setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      // 프로필 업데이트 API 호출
-      const response = await authApi.updateProfile(userData);
-      const updatedUser = response.data;
+  //     // 프로필 업데이트 API 호출
+  //     const response = await authApi.updateProfile(userData);
+  //     const updatedUser = response.data;
       
-      setState(prev => ({
-        ...prev,
-        user: updatedUser,
-        isLoading: false
-      }));
-    } catch (error) {
-      setState(prev => ({ 
-        ...prev, 
-        isLoading: false, 
-        error: error instanceof Error ? error : new Error('프로필 업데이트에 실패했습니다.') 
-      }));
-      throw error;
-    }
-  };
+  //     setState(prev => ({
+  //       ...prev,
+  //       user: updatedUser,
+  //       isLoading: false
+  //     }));
+  //   } catch (error) {
+  //     setState(prev => ({ 
+  //       ...prev, 
+  //       isLoading: false, 
+  //       error: error instanceof Error ? error : new Error('프로필 업데이트에 실패했습니다.') 
+  //     }));
+  //     throw error;
+  //   }
+  // };
 
   // 에러 초기화
   const clearError = () => {
@@ -237,8 +237,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // API 서비스 확장 (편의를 위해 context에 추가)
   const extendedAuthApi = {
     ...authApi,
-    updateProfile: (userData: Partial<User>) => 
-      authApi.post('/api/auth/profile/update', userData)
+    //updateProfile: (userData: Partial<User>) => 
+    //authApi.post('/api/auth/profile/update', userData)
   };
 
   // Context 값
@@ -247,7 +247,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
-    updateProfile,
+    // updateProfile,
     clearError,
     checkAuthStatus
   };

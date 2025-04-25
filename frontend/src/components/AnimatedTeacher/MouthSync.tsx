@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './MouthSync.css';
+//import './MouthSync.css';
 
 interface MouthSyncProps {
   speaking: boolean;
@@ -8,7 +8,7 @@ interface MouthSyncProps {
 }
 
 // 영어 발음에 따른 입 모양 매핑
-const phonemeToMouthShape = {
+const phonemeToMouthShape: Record<string, string> = {
   'AA': 'open',    // "odd", 'a' in father
   'AE': 'open',    // "at", 'a' in cat
   'AH': 'mid',     // "hut", 'u' in but
@@ -75,7 +75,7 @@ const MouthSync: React.FC<MouthSyncProps> = ({
           // 다음 음소로 이동
           phonemeIndex = (phonemeIndex + 1) % phonemes.length;
           const currentPhoneme = phonemes[phonemeIndex];
-          const mouthShape = phonemeToMouthShape[currentPhoneme as keyof typeof phonemeToMouthShape] || 'closed';
+          const mouthShape = phonemeToMouthShape[currentPhoneme] || 'closed';
           setCurrentMouthShape(mouthShape);
           lastTime = timestamp;
         }

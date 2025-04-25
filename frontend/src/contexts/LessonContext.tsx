@@ -28,6 +28,44 @@ interface LessonContextType {
   resetLessonState: () => void;
 }
 
+
+// 레슨 타입 정의
+export interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  dialogues: LessonDialogue[];
+  vocabulary: LessonVocabulary[];
+  exercises: LessonExercise[];
+}
+
+interface LessonDialogue {
+  id: string;
+  character: string;
+  text: string;
+  translation?: string;
+  audioUrl?: string;
+}
+
+interface LessonVocabulary {
+  word: string;
+  translation: string;
+  phonetic: string;
+  example: string;
+  audioUrl?: string;
+}
+
+interface LessonExercise {
+  id: string;
+  type: 'speaking' | 'listening' | 'multiple-choice' | 'fill-blank';
+  question: string;
+  options?: string[];
+  correctAnswer: string | string[];
+  hint?: string;
+}
+
+
 // 기본 컨텍스트 값 설정
 const defaultLessonContext: LessonContextType = {
   contextId: null,
@@ -51,7 +89,7 @@ const defaultLessonContext: LessonContextType = {
   setCurrentExerciseIndex: () => {},
   speechSpeed: 'normal',
   setSpeechSpeed: () => {},
-  resetLessonState: () => {}
+  resetLessonState: () => {},
 };
 
 // Context 생성
@@ -125,6 +163,7 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     });
   };
 
+  
   // 레슨 상태 초기화
   const resetLessonState = () => {
     setCurrentLesson(null);
@@ -151,7 +190,7 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     setCurrentExerciseIndex,
     speechSpeed,
     setSpeechSpeed,
-    resetLessonState
+    resetLessonState,
   };
 
   return (
