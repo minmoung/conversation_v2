@@ -12,7 +12,7 @@ import { fetchLessonById } from '../services/api';
 
 const Lesson: React.FC = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
-  const { setCurrentLesson, updateUserProgress } = useLessonContext();
+  // const { setCurrentLesson, updateUserProgress } = useLessonContext();
   
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentDialogueIndex, setCurrentDialogueIndex] = useState<number>(0);
@@ -33,7 +33,7 @@ const Lesson: React.FC = () => {
         try {
           const lessonData = await fetchLessonById(lessonId);
           setLessonData(lessonData);
-          setCurrentLesson(lessonData.id);
+          //setCurrentLesson(lessonData.id);
         } catch (error) {
           console.error('Failed to load lesson:', error);
         } finally {
@@ -43,7 +43,8 @@ const Lesson: React.FC = () => {
     };
 
     loadLesson();
-  }, [lessonId, setCurrentLesson]);
+  //}, [lessonId, setCurrentLesson]);
+  }, [lessonId]);
 
   // 대화 진행
   const handleNext = () => {
@@ -95,7 +96,7 @@ const Lesson: React.FC = () => {
     // 피드백 설정
     if (similarityScore > 0.7) {
       setFeedback('잘했어요! 발음이 아주 좋습니다.');
-      updateUserProgress(lessonId, 10); // 10 포인트 부여
+      //updateUserProgress(lessonId, 10); // 10 포인트 부여
     } else if (similarityScore > 0.4) {
       setFeedback('좋아요! 조금 더 연습해보세요.');
     } else {

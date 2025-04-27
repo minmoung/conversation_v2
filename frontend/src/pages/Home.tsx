@@ -31,8 +31,8 @@ const LessonCard: React.FC<{ lesson: Lesson; onSelect: (id: string) => void }> =
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  //const { allLessons, fetchAllLessons, isLoading: lessonsLoading } = useLessonContext();
-  const { allLessons, isLoading: lessonsLoading } = useLessonContext();
+  const { allLessons, fetchAllLessons, isLoading: lessonsLoading } = useLessonContext();
+  // const { allLessons, isLoading: lessonsLoading } = useLessonContext();
   
   const [welcomeMessage, setWelcomeMessage] = useState<string>('');
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
@@ -83,7 +83,7 @@ const Home: React.FC = () => {
   
   // 컴포넌트 마운트 시 레슨 데이터 로드
   useEffect(() => {
-    //fetchAllLessons();
+    fetchAllLessons();
   }, []);
   
   // 로딩 상태 표시

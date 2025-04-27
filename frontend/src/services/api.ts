@@ -89,28 +89,32 @@ export const authApi = {
 };
 
 // 학습 관련 API
-// export const lessonApi = {
-//   getLessons: () => api.get('/api/lessons'),
+export const lessonApi = {
+  getLessons: () => api.get('/api/lessons'),
   
-//   getLessonById: (lessonId: string) => 
-//     api.get(`/api/lessons/${lessonId}`),
+  getLessonById: (lessonId: string) => 
+    api.get(`/api/lessons/${lessonId}`),
     
-//   getUserProgress: () => api.get('/api/user/progress'),
+  getUserProgress: () => api.get('/api/user/progress'),
   
-//   submitSpeechEvaluation: (lessonId: string, audioBlob: Blob) => {
-//     const formData = new FormData();
-//     formData.append('audio', audioBlob);
+  submitSpeechEvaluation: (lessonId: string, audioBlob: Blob) => {
+    const formData = new FormData();
+    formData.append('audio', audioBlob);
     
-//     return api.post(`/api/lessons/${lessonId}/evaluate`, formData, {
-//       headers: {
-//         'Content-Type': 'multipart/form-data'
-//       }
-//     });
-//   },
+    return api.post(`/api/lessons/${lessonId}/evaluate`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
   
-//   saveUserProgress: (lessonId: string, progress: number, score: number) => 
-//     api.post(`
-
+  saveUserProgress: (lessonId: string, progress: number, score: number) => 
+    api.post(`/api/lessons/${lessonId}/progress`, {
+      progress,
+      score
+    })
+};
+ 
 
 // 예시 데이터 (실제로는 API 호출로 대체)
 const sampleLessons: Record<string, LessonContent> = {
