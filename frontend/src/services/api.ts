@@ -77,8 +77,18 @@ api.interceptors.response.use(
 
 // 인증 관련 API
 export const authApi = {
-  login: (email: string, password: string) => 
-    api.post('/api/auth/login', { email, password }),
+  // login: (email: string, password: string) => 
+  //   api.post('/api/auth/login', { email, password }),
+  login: (email: string, password: string) => {
+    const formData = new FormData();
+    formData.append('username', email); // OAuth2는 username 필드를 사용
+    formData.append('password', password);
+    return api.post('/api/auth/login', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+  },
     
   register: (name: string, email: string, password: string) => 
     api.post('/api/auth/register', { name, email, password }),

@@ -44,6 +44,8 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     // 로그인 상태 확인
+    alert("123");
+    console.log("============================== user",user);
     if (!isAuthenticated || !user) {
       navigate('/login');
       return;
