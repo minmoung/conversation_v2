@@ -85,7 +85,12 @@ export const authApi = {
     
   logout: () => api.post('/api/auth/logout'),
   
-  getUserProfile: () => api.get('/api/auth/profile')
+  getUserProfile: () => api.get('/api/auth/profile'),
+
+  // 새로 추가할 메서드들
+  getUserStats: (userId: string) => api.get(`/api/users/${userId}/stats`),
+  
+  getUserBadges: (userId: string) => api.get(`/api/users/${userId}/badges`)
 };
 
 // 학습 관련 API
@@ -174,3 +179,8 @@ export const fetchLessonById = async (lessonId: string): Promise<LessonContent> 
     }, 500); // 실제 API 호출을 시뮬레이션하기 위한 지연
   });
 };
+
+
+export const getUserProfile = (userId: string) => api.get(`/api/users/${userId}/profile`);
+export const getUserStats = (userId: string) => api.get(`/api/users/${userId}/stats`);
+export const getUserBadges = (userId: string) => api.get(`/api/users/${userId}/badges`);

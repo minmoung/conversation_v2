@@ -72,6 +72,8 @@ interface LessonContextState {
   currentExerciseIndex: number;
   pronounciationResults: PronunciationResult | null;
   speechSpeed: 'very-slow' | 'slow' | 'normal' | 'fast' | 'very-fast';
+  completedLessons: string[]; // 완료된 레슨 ID 배열 추가
+
 }
 
 // 컨텍스트 액션 타입
@@ -102,6 +104,7 @@ const defaultLessonContext: LessonContextType = {
   currentExerciseIndex: 0,
   pronounciationResults: null,
   speechSpeed: 'normal',
+  completedLessons: [], // 비어있는 배열로 초기화
   fetchLesson: async () => {},
   fetchAllLessons: async () => {},
   setCurrentExerciseIndex: () => {},
@@ -139,7 +142,8 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     allLessons: [],
     currentExerciseIndex: 0,
     pronounciationResults: null,
-    speechSpeed: 'normal'
+    speechSpeed: 'normal',
+    completedLessons: [] // 완료된 레슨 ID 배열 추가
   });
 
   // 레슨 데이터 가져오기
@@ -178,15 +182,47 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
   };
 
   // 모든 레슨 목록 가져오기
+  // const fetchAllLessons = async () => {
+  //   try {
+  //     setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+  //     const response = await lessonApi.getLessons();
+      
+  //     setState(prev => ({
+  //       ...prev,
+  //       allLessons: response.data,
+  //       isLoading: false
+  //     }));
+  //   } catch (error) {
+  //     setState(prev => ({ 
+  //       ...prev, 
+  //       isLoading: false, 
+  //       error: error instanceof Error ? error : new Error('Failed to fetch lessons') 
+  //     }));
+  //   }
+  // };
+
   const fetchAllLessons = async () => {
+
+    console.log("===================== 여기를 호출함으로써 에러가 발생함 =======================")
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const response = await lessonApi.getLessons();
+      // 레슨 목록 요청
+      //const response = await lessonApi.getLessons();
+      
+      // 사용자 진행 상황 요청
+      const progressResponse = await lessonApi.getUserProgress();
+      
+      // 완료된 레슨 ID 목록 추출
+      const completedLessonIds = progressResponse.data.lessons
+        .filter((progress: UserProgress) => progress.completed)
+        .map((progress: UserProgress) => progress.lessonId);
       
       setState(prev => ({
         ...prev,
-        allLessons: response.data,
+        //allLessons: response.data,
+        completedLessons: completedLessonIds,
         isLoading: false
       }));
     } catch (error) {
@@ -203,7 +239,60 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     setState(prev => ({ ...prev, currentExerciseIndex: index }));
   };
 
-  // 연습 문제 답안 제출
+  // // 연습 문제 답안 제출
+  // const submitExerciseAnswer = async (exerciseId: string, answer: string | string[]): Promise<boolean> => {
+  //   if (!state.currentLesson) return false;
+    
+  //   try {
+  //     setState(prev => ({ ...prev, isLoading: true }));
+      
+  //     // 현재 연습 문제 찾기
+  //     const exercise = state.currentLesson.exercises.find(ex => ex.id === exerciseId);
+  //     if (!exercise) throw new Error('Exercise not found');
+      
+  //     // 답안 검증
+  //     let isCorrect = false;
+  //     if (Array.isArray(exercise.correctAnswer) && Array.isArray(answer)) {
+  //       // 배열 답안 비교 (순서 무관)
+  //       isCorrect = exercise.correctAnswer.every(item => answer.includes(item)) &&
+  //                 answer.every(item => exercise.correctAnswer.includes(item));
+  //     } else if (!Array.isArray(exercise.correctAnswer) && !Array.isArray(answer)) {
+  //       // 문자열 답안 비교
+  //       isCorrect = exercise.correctAnswer.toLowerCase() === answer.toLowerCase();
+  //     }
+      
+  //     // 결과 저장
+  //     if (state.currentLesson) {
+  //       const response = await lessonApi.saveUserProgress(
+  //         state.currentLesson.id,
+  //         state.lessonProgress,
+  //         isCorrect ? 100 : 50
+  //       );
+        
+  //       // 진행률 업데이트
+  //       const totalExercises = state.currentLesson.exercises.length;
+  //       const completedExercises = state.currentExerciseIndex + 1;
+  //       const newProgress = (completedExercises / totalExercises) * 100;
+        
+  //       setState(prev => ({
+  //         ...prev,
+  //         lessonProgress: newProgress,
+  //         isLoading: false
+  //       }));
+  //     }
+      
+  //     return isCorrect;
+  //   } catch (error) {
+  //     setState(prev => ({ 
+  //       ...prev, 
+  //       isLoading: false, 
+  //       error: error instanceof Error ? error : new Error('Failed to submit answer') 
+  //     }));
+  //     return false;
+  //   }
+  // };
+
+
   const submitExerciseAnswer = async (exerciseId: string, answer: string | string[]): Promise<boolean> => {
     if (!state.currentLesson) return false;
     
@@ -238,9 +327,19 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
         const completedExercises = state.currentExerciseIndex + 1;
         const newProgress = (completedExercises / totalExercises) * 100;
         
+        // 레슨이 완료되었는지 확인 (모든 연습문제를 풀었을 때)
+        const isLessonCompleted = completedExercises >= totalExercises;
+        
+        // completedLessons 업데이트
+        let updatedCompletedLessons = [...state.completedLessons];
+        if (isLessonCompleted && !updatedCompletedLessons.includes(state.currentLesson.id)) {
+          updatedCompletedLessons.push(state.currentLesson.id);
+        }
+        
         setState(prev => ({
           ...prev,
           lessonProgress: newProgress,
+          completedLessons: updatedCompletedLessons,
           isLoading: false
         }));
       }

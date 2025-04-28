@@ -53,16 +53,16 @@ const Profile: React.FC = () => {
       setIsLoading(true);
       try {
         // 사용자 프로필 정보 로드
-        const profileData = await authApi.getUserProfile(user.id);
-        setProfile(profileData);
+        const profileData = await authApi.getUserProfile();
+        setProfile(profileData.data);
 
         // 사용자 통계 정보 로드
         const statsData = await authApi.getUserStats(user.id);
-        setStats(statsData);
+        setStats(statsData.data);
 
         // 사용자 배지 정보 로드
         const badgesData = await authApi.getUserBadges(user.id);
-        setBadges(badgesData);
+        setBadges(badgesData.data);
       } catch (error) {
         console.error('프로필 데이터 로딩 실패:', error);
       } finally {
@@ -207,7 +207,7 @@ const Profile: React.FC = () => {
             
             <h3 className="font-bold mb-2">최근 학습 활동</h3>
             <div className="space-y-4">
-              {completedLessons.slice(0, 5).map((lesson, index) => (
+              {/* {completedLessons.slice(0, 5).map((lesson, index) => (
                 <div key={index} className="bg-white rounded-lg shadow p-4 flex justify-between items-center">
                   <div>
                     <h4 className="font-medium">{lesson.title}</h4>
@@ -222,7 +222,7 @@ const Profile: React.FC = () => {
                     복습하기
                   </button>
                 </div>
-              ))}
+              ))} */}
               
               {completedLessons.length === 0 && (
                 <div className="bg-white rounded-lg shadow p-8 text-center">
