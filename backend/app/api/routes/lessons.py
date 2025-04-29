@@ -39,6 +39,7 @@ def get_lesson_by_id(
     """
     특정 레슨의 상세 내용 조회
     """
+    print(" ======= call lesson by id ======")
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id, Lesson.is_active == True).first()
     if not lesson:
         raise HTTPException(
