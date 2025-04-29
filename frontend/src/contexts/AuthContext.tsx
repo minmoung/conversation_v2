@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { authApi } from '../services/api';
+import axios from 'axios';
 
 // 사용자 타입 정의
 export interface User {
@@ -76,6 +77,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authApi.login(email, password);
       const { user, token, refreshToken } = response.data;
       
+      alert("response.data " + response.data);
+      // 사용자 정보 저장
       // 토큰 저장
       localStorage.setItem('token', token);
       localStorage.setItem('refreshToken', refreshToken);
@@ -87,6 +90,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: null
       });
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // alert(JSON.stringify(error.response?.data, null, 2));
+        alert(JSON.stringify(error.response?.data.detail, null, 2));
+        console.error("서버 응답 오류:", JSON.stringify(error.response?.data, null, 2));
+      } else {
+        console.error("예상치 못한 오류:", error);
+      }
+      
       setState(prev => ({ 
         ...prev, 
         isLoading: false, 
