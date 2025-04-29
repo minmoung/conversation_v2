@@ -10,6 +10,8 @@ app = FastAPI(
     version="0.1.0"
 )
 
+print(settings.CORS_ORIGINS)
+
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
