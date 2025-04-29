@@ -36,7 +36,7 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    
+    console.log('1. token in localStorage: ', localStorage.getItem('token'));
     // 401 에러 처리 (인증 만료)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -58,7 +58,7 @@ api.interceptors.response.use(
         // 새 토큰 저장
         const { token } = response.data;
         localStorage.setItem('token', token);
-        
+        console.log('2. token in localStorage:', localStorage.getItem('token'));
         // 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return axios(originalRequest);
@@ -105,6 +105,10 @@ export const authApi = {
 
 // 학습 관련 API
 export const lessonApi = {
+
+  //console.log('3. token in localStorage:', localStorage.getItem('token'))
+
+  // 레슨 목록 요청
   getLessons: () => api.get('/api/lessons'),
   
   getLessonById: (lessonId: string) => 

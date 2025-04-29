@@ -209,7 +209,13 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
       // 레슨 목록 요청
-      //const response = await lessonApi.getLessons();
+      try {
+        //const response = await lessonApi.getLessons();
+      } catch (err) {
+        console.error(err); // 에러 메시지 확인
+      }
+
+      
       
       // 사용자 진행 상황 요청
       const progressResponse = await lessonApi.getUserProgress();
