@@ -13,6 +13,7 @@ from app.core.security import (
 )
 from app.db.models import User, RefreshToken
 from app.schemas.auth import UserCreate, Token, UserProfile, RefreshTokenRequest
+from passlib.context import CryptContext
 
 router = APIRouter()
 
@@ -51,8 +52,16 @@ def login(
     """
     OAuth2 호환 토큰 로그인
     """
+    # 해쉬변환용 ( 필요에 따라서 암호화된 데이터를 직접 컬럼에 저장해서 사용하도록 할것)
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    hashed = pwd_context.hash("1234")
+    print(hashed);
+
+    
+    print("========================= backend login =========================")
     # 사용자 확인
     user = db.query(User).filter(User.email == form_data.username).first()
+    
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

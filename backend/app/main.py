@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import auth, lessons
 from app.config.settings import settings
+from app.db.session import init_db
 
 app = FastAPI(
     title="영어회화 AI API",
@@ -29,3 +30,8 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+
+@app.on_event("startup")
+def startup_event():
+    init_db()
