@@ -17,6 +17,7 @@ api.interceptors.request.use(
     // 로컬 스토리지에서 토큰 가져오기
     const token = localStorage.getItem('token');
     
+    console.log('0. token in localStorage: ', token);
     // 토큰이 있으면 헤더에 추가
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -29,6 +30,21 @@ api.interceptors.request.use(
   }
 );
 
+// 인증 상태 관리를 위한 변수
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+// 토큰 갱신 후 대기 중인 요청들을 처리
+const onRefreshed = (token: string) => {
+  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers = [];
+};
+
+// 새 토큰을 기다리는 요청 추가
+const addSubscriber = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
+
 // 응답 인터셉터 설정
 api.interceptors.response.use(
   (response) => {
@@ -36,21 +52,39 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    console.log('1. token in localStorage: ', localStorage.getItem('token'));
+    
+    // 이미 재시도된 요청이거나 URL이 refresh인 경우 더 이상 처리하지 않음
+    if (originalRequest._retry || originalRequest.url?.includes('/api/auth/refresh')) {
+      return Promise.reject(error);
+    }
+    
     // 401 에러 처리 (인증 만료)
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401) {
       originalRequest._retry = true;
+      
+      const refreshToken = localStorage.getItem('refreshToken');
+      
+      if (!refreshToken) {
+        // 리프레시 토큰이 없으면 로그인 페이지로 리다이렉트
+        localStorage.removeItem('token');
+        window.location.href = '/';
+        return Promise.reject(error);
+      }
+      
+      // 이미 토큰 갱신 중이면 대기열에 추가
+      if (isRefreshing) {
+        return new Promise(resolve => {
+          addSubscriber(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(axios(originalRequest));
+          });
+        });
+      }
+      
+      isRefreshing = true;
       
       try {
         // 리프레시 토큰으로 새 액세스 토큰 요청
-        const refreshToken = localStorage.getItem('refreshToken');
-        
-        if (!refreshToken) {
-          // 리프레시 토큰이 없으면 로그인 페이지로 리다이렉트
-          window.location.href = '/';
-          return Promise.reject(error);
-        }
-        
         const response = await axios.post(`${BASE_URL}/api/auth/refresh`, {
           refreshToken
         });
@@ -58,7 +92,10 @@ api.interceptors.response.use(
         // 새 토큰 저장
         const { token } = response.data;
         localStorage.setItem('token', token);
-        console.log('2. token in localStorage:', localStorage.getItem('token'));
+        
+        // 대기 중인 요청들 처리
+        onRefreshed(token);
+        
         // 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return axios(originalRequest);
@@ -68,6 +105,8 @@ api.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         window.location.href = '/';
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
     

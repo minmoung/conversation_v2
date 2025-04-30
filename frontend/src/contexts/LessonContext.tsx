@@ -70,10 +70,10 @@ interface LessonContextState {
   userLessonProgress: UserProgress | null;
   allLessons: Lesson[];
   currentExerciseIndex: number;
-  pronounciationResults: PronunciationResult | null;
+  pronunciationResults: PronunciationResult | null;
   speechSpeed: 'very-slow' | 'slow' | 'normal' | 'fast' | 'very-fast';
   completedLessons: string[]; // 완료된 레슨 ID 배열 추가
-
+  isAuthenticated: boolean; // 로그인 상태 추가
 }
 
 // 컨텍스트 액션 타입
@@ -86,7 +86,7 @@ interface LessonContextActions {
   updateLessonProgress: (progress: number) => void;
   setSpeechSpeed: (speed: 'very-slow' | 'slow' | 'normal' | 'fast' | 'very-fast') => void;
   resetLessonState: () => void;
-  
+  setIsAuthenticated: (isAuth: boolean) => void; // 인증 상태 설정 함수 추가
 }
 
 // 컨텍스트 타입
@@ -102,9 +102,10 @@ const defaultLessonContext: LessonContextType = {
   userLessonProgress: null,
   allLessons: [],
   currentExerciseIndex: 0,
-  pronounciationResults: null,
+  pronunciationResults: null,
   speechSpeed: 'normal',
   completedLessons: [], // 비어있는 배열로 초기화
+  isAuthenticated: false, // 기본값은 인증되지 않은 상태
   fetchLesson: async () => {},
   fetchAllLessons: async () => {},
   setCurrentExerciseIndex: () => {},
@@ -116,7 +117,8 @@ const defaultLessonContext: LessonContextType = {
   }),
   updateLessonProgress: () => {},
   setSpeechSpeed: () => {},
-  resetLessonState: () => {}
+  resetLessonState: () => {},
+  setIsAuthenticated: () => {}
 };
 
 // 컨텍스트 생성
@@ -141,13 +143,31 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     userLessonProgress: null,
     allLessons: [],
     currentExerciseIndex: 0,
-    pronounciationResults: null,
+    pronunciationResults: null,
     speechSpeed: 'normal',
-    completedLessons: [] // 완료된 레슨 ID 배열 추가
+    completedLessons: [], // 완료된 레슨 ID 배열 추가
+    isAuthenticated: false // 로그인 상태 추가
   });
+
+  // 인증 상태 설정 함수
+  const setIsAuthenticated = (isAuth: boolean) => {
+    setState(prev => ({ ...prev, isAuthenticated: isAuth }));
+    
+    // 인증 상태가 변경되면 레슨 데이터 가져오기
+    if (isAuth) {
+      fetchAllLessons();
+    }
+  };
 
   // 레슨 데이터 가져오기
   const fetchLesson = async (lessonId: string) => {
+
+    // 로그인 상태가 아니면 함수 실행하지 않음
+    if (!state.isAuthenticated) {
+      console.log("User is not authenticated. Cannot fetch lesson.");
+      return;
+    }
+
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
@@ -204,19 +224,31 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
 
   const fetchAllLessons = async () => {
 
-    console.log("===================== 여기를 호출함으로써 에러가 발생함 =======================")
+    // 로그인 상태가 아니면 함수 실행하지 않음
+    if (!state.isAuthenticated) {
+      console.log("User is not authenticated. Cannot fetch all lessons.");
+      return;
+    }
+
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
       // 레슨 목록 요청
+      // try {
+      //   const response = await lessonApi.getLessons();
+      // } catch (err) {
+      //   console.error(err); // 에러 메시지 확인
+      // }
+
+      // 레슨 목록 요청
+      let lessons = [];
       try {
-        //const response = await lessonApi.getLessons();
+        const response = await lessonApi.getLessons();
+        lessons = response.data;
       } catch (err) {
-        console.error(err); // 에러 메시지 확인
+        console.error("Error fetching lessons:", err);
       }
 
-      
-      
       // 사용자 진행 상황 요청
       const progressResponse = await lessonApi.getUserProgress();
       
@@ -227,7 +259,7 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
       
       setState(prev => ({
         ...prev,
-        //allLessons: response.data,
+        allLessons: lessons,
         completedLessons: completedLessonIds,
         isLoading: false
       }));
@@ -300,6 +332,12 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
 
 
   const submitExerciseAnswer = async (exerciseId: string, answer: string | string[]): Promise<boolean> => {
+    // 로그인 상태가 아니면 함수 실행하지 않음
+    if (!state.isAuthenticated || !state.currentLesson) {
+      console.log("User is not authenticated or no active lesson. Cannot submit answer.");
+      return false;
+    }
+
     if (!state.currentLesson) return false;
     
     try {
@@ -363,10 +401,12 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
 
   // 음성 평가 제출
   const submitSpeechEvaluation = async (exerciseId: string, audioBlob: Blob): Promise<PronunciationResult> => {
-    if (!state.currentLesson) {
+    // 로그인 상태가 아니면 함수 실행하지 않음
+    if (!state.isAuthenticated || !state.currentLesson) {
+      console.log("User is not authenticated or no active lesson. Cannot submit speech evaluation.");
       return {
         score: 0,
-        feedback: 'No active lesson',
+        feedback: 'No active lesson or not authenticated',
         wordScores: []
       };
     }
@@ -380,7 +420,20 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
         audioBlob
       );
       
+
+
       const result: PronunciationResult = response.data;
+      /*
+      // API 응답이 PronunciationResult 형식인지 확인하고 변환
+      const result: PronunciationResult = {
+        score: response.data.score || 0,
+        feedback: response.data.feedback || '',
+        wordScores: Array.isArray(response.data.wordScores) 
+          ? response.data.wordScores 
+          : []
+      };
+      */
+     
       
       // 결과 저장
       setState(prev => ({
@@ -427,9 +480,9 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
   };
 
   // 컴포넌트 마운트 시 모든 레슨 가져오기
-  useEffect(() => {
-    fetchAllLessons();
-  }, []);
+  // useEffect(() => {
+  //   fetchAllLessons();
+  // }, []);
 
   // 컨텍스트 값
   const contextValue: LessonContextType = {
@@ -441,7 +494,8 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     submitSpeechEvaluation,
     updateLessonProgress,
     setSpeechSpeed,
-    resetLessonState
+    resetLessonState,
+    setIsAuthenticated
   };
 
   return (
