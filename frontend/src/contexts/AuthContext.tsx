@@ -77,18 +77,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authApi.login(email, password);
       const { user, token, refreshToken } = response.data;
       
-      alert("response.data " + response.data);
       // 사용자 정보 저장
       // 토큰 저장
+      alert(user);
+      alert(token);
+      alert(refreshToken);
       localStorage.setItem('token', token);
       localStorage.setItem('refreshToken', refreshToken);
-      
+      console.log('로그인 성공:', response.data);
       setState({
         user,
         isAuthenticated: true,
         isLoading: false,
         error: null
       });
+
+      
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // alert(JSON.stringify(error.response?.data, null, 2));
@@ -199,8 +203,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // 인증 상태 확인
   const checkAuthStatus = async (): Promise<boolean> => {
+    console.log("Starting auth check");
     try {
       const token = localStorage.getItem('token');
+      console.log("Token exists:", !!token);
       
       if (!token) {
         setState({
@@ -225,6 +231,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return true;
     } catch (error) {
+      console.error("Auth check error:", error);
       // 토큰이 유효하지 않은 경우 로그아웃 처리
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -244,6 +251,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     checkAuthStatus();
   }, []);
+
+  // AuthContext.tsx에서 상태 변화 로깅
+  useEffect(() => {
+    console.log("Auth Context State:", state);
+  }, [state]);
 
   // API 서비스 확장 (편의를 위해 context에 추가)
   const extendedAuthApi = {

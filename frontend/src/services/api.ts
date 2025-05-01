@@ -103,7 +103,7 @@ api.interceptors.response.use(
         // 리프레시 실패 시 로그아웃
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/';
+        //window.location.href = '/';
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -145,11 +145,9 @@ export const authApi = {
 // 학습 관련 API
 export const lessonApi = {
 
-  //console.log('3. token in localStorage:', localStorage.getItem('token'))
-
   // 레슨 목록 요청
   getLessons: () => api.get('/api/lessons'),
-  
+
   getLessonById: (lessonId: string) => 
     api.get(`/api/lessons/${lessonId}`),
     

@@ -31,11 +31,15 @@ const LessonCard: React.FC<{ lesson: Lesson; onSelect: (id: string) => void }> =
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { allLessons, fetchAllLessons, isLoading: lessonsLoading } = useLessonContext();
-  // const { allLessons, isLoading: lessonsLoading } = useLessonContext();
+  const { 
+    allLessons, 
+    fetchAllLessons, 
+    isLoading: lessonsLoading,
+  } = useLessonContext();
   
   const [welcomeMessage, setWelcomeMessage] = useState<string>('');
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [initialized, setInitialized] = useState<boolean>(false);
   
   // 사용자 레벨에 맞는 추천 레슨
   const recommendedLessons = allLessons.filter(lesson => {
@@ -59,16 +63,25 @@ const Home: React.FC = () => {
     navigate(`/lesson/${lessonId}`);
   };
   
-  // 환영 메시지 설정
+  // 초기화 및 인증 상태 설정
   useEffect(() => {
-    if (user) {
+    // 인증 상태를 LessonContext에 설정
+    if (isAuthenticated && !initialized) {
+      alert('Welcome to the English Learning App!');
+      setInitialized(true);
+    }
+  }, [isAuthenticated, initialized]);
+  
+  // 환영 메시지 설정 - 사용자 데이터가 변경될 때만 실행
+  useEffect(() => {
+    if (user && user.name) { // user와 user.name이 있을 때만 실행
       const hour = new Date().getHours();
       let greeting = '';
       
       if (hour < 12) greeting = 'Good morning';
       else if (hour < 18) greeting = 'Good afternoon';
       else greeting = 'Good evening';
-      
+      alert(`환영합니다, ${user.name}!`);
       setWelcomeMessage(`${greeting}, ${user.name}! Ready for your English lesson?`);
       
       // 환영 메시지 음성 재생 시뮬레이션
@@ -79,12 +92,7 @@ const Home: React.FC = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [user]);
-  
-  // 컴포넌트 마운트 시 레슨 데이터 로드
-  useEffect(() => {
-    fetchAllLessons();
-  }, []);
+  }, [user?.name]); // user.name이 변경될 때만 실행
   
   // 로딩 상태 표시
   if (authLoading || lessonsLoading) {
@@ -210,7 +218,6 @@ const Home: React.FC = () => {
       </main>
       
       <div className="quick-start-fab" onClick={() => {
-        alert(allLessons);
         if (allLessons.length > 0) {
           handleSelectLesson(allLessons[0].id);
         }

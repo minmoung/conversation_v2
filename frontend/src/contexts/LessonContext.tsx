@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { lessonApi } from '../services/api';
+import { useAuth } from './AuthContext'; // AuthContext import 추가
 
 // 레슨 타입 정의
 export interface Lesson {
@@ -72,8 +73,8 @@ interface LessonContextState {
   currentExerciseIndex: number;
   pronunciationResults: PronunciationResult | null;
   speechSpeed: 'very-slow' | 'slow' | 'normal' | 'fast' | 'very-fast';
-  completedLessons: string[]; // 완료된 레슨 ID 배열 추가
-  isAuthenticated: boolean; // 로그인 상태 추가
+  completedLessons: string[]; // 완료된 레슨 ID 배열
+  // isAuthenticated 속성 제거
 }
 
 // 컨텍스트 액션 타입
@@ -86,12 +87,11 @@ interface LessonContextActions {
   updateLessonProgress: (progress: number) => void;
   setSpeechSpeed: (speed: 'very-slow' | 'slow' | 'normal' | 'fast' | 'very-fast') => void;
   resetLessonState: () => void;
-  setIsAuthenticated: (isAuth: boolean) => void; // 인증 상태 설정 함수 추가
+  // setIsAuthenticated 함수 제거
 }
 
 // 컨텍스트 타입
 type LessonContextType = LessonContextState & LessonContextActions;
-
 
 // 기본 컨텍스트 값
 const defaultLessonContext: LessonContextType = {
@@ -104,8 +104,7 @@ const defaultLessonContext: LessonContextType = {
   currentExerciseIndex: 0,
   pronunciationResults: null,
   speechSpeed: 'normal',
-  completedLessons: [], // 비어있는 배열로 초기화
-  isAuthenticated: false, // 기본값은 인증되지 않은 상태
+  completedLessons: [],
   fetchLesson: async () => {},
   fetchAllLessons: async () => {},
   setCurrentExerciseIndex: () => {},
@@ -117,8 +116,7 @@ const defaultLessonContext: LessonContextType = {
   }),
   updateLessonProgress: () => {},
   setSpeechSpeed: () => {},
-  resetLessonState: () => {},
-  setIsAuthenticated: () => {}
+  resetLessonState: () => {}
 };
 
 // 컨텍스트 생성
@@ -135,6 +133,9 @@ interface LessonProviderProps {
 
 // 컨텍스트 제공자 컴포넌트
 export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
+  // AuthContext에서 인증 상태 가져오기
+  const { isAuthenticated } = useAuth();
+  
   const [state, setState] = useState<LessonContextState>({
     currentLesson: null,
     isLoading: false,
@@ -145,25 +146,13 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     currentExerciseIndex: 0,
     pronunciationResults: null,
     speechSpeed: 'normal',
-    completedLessons: [], // 완료된 레슨 ID 배열 추가
-    isAuthenticated: false // 로그인 상태 추가
+    completedLessons: []
   });
-
-  // 인증 상태 설정 함수
-  const setIsAuthenticated = (isAuth: boolean) => {
-    setState(prev => ({ ...prev, isAuthenticated: isAuth }));
-    
-    // 인증 상태가 변경되면 레슨 데이터 가져오기
-    if (isAuth) {
-      fetchAllLessons();
-    }
-  };
 
   // 레슨 데이터 가져오기
   const fetchLesson = async (lessonId: string) => {
-
     // 로그인 상태가 아니면 함수 실행하지 않음
-    if (!state.isAuthenticated) {
+    if (!isAuthenticated) {
       console.log("User is not authenticated. Cannot fetch lesson.");
       return;
     }
@@ -186,9 +175,6 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
         currentLesson: lessonData,
         userLessonProgress: userProgress,
         isLoading: false,
-        // 이전에 진행한 적이 있으면 그 진행률을 설정, 아니면 0
-        // lessonProgress: userProgress && lessonData.exercises
-        // ? (userProgress.exercises.filter(ex => ex.completed).length / lessonData.exercises.length) * 100 : 0,  
         lessonProgress: userProgress ? 
           (userProgress.exercises.filter((ex: { exerciseId: string; completed: boolean; score: number }) => ex.completed).length / lessonData.exercises.length) * 100 : 0
       }));
@@ -202,30 +188,10 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
   };
 
   // 모든 레슨 목록 가져오기
-  // const fetchAllLessons = async () => {
-  //   try {
-  //     setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
-  //     const response = await lessonApi.getLessons();
-      
-  //     setState(prev => ({
-  //       ...prev,
-  //       allLessons: response.data,
-  //       isLoading: false
-  //     }));
-  //   } catch (error) {
-  //     setState(prev => ({ 
-  //       ...prev, 
-  //       isLoading: false, 
-  //       error: error instanceof Error ? error : new Error('Failed to fetch lessons') 
-  //     }));
-  //   }
-  // };
-
   const fetchAllLessons = async () => {
-
     // 로그인 상태가 아니면 함수 실행하지 않음
-    if (!state.isAuthenticated) {
+    if (!isAuthenticated) {
+      alert("fetchAllLessons");
       console.log("User is not authenticated. Cannot fetch all lessons.");
       return;
     }
@@ -233,13 +199,6 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      // 레슨 목록 요청
-      // try {
-      //   const response = await lessonApi.getLessons();
-      // } catch (err) {
-      //   console.error(err); // 에러 메시지 확인
-      // }
-
       // 레슨 목록 요청
       let lessons = [];
       try {
@@ -277,68 +236,12 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     setState(prev => ({ ...prev, currentExerciseIndex: index }));
   };
 
-  // // 연습 문제 답안 제출
-  // const submitExerciseAnswer = async (exerciseId: string, answer: string | string[]): Promise<boolean> => {
-  //   if (!state.currentLesson) return false;
-    
-  //   try {
-  //     setState(prev => ({ ...prev, isLoading: true }));
-      
-  //     // 현재 연습 문제 찾기
-  //     const exercise = state.currentLesson.exercises.find(ex => ex.id === exerciseId);
-  //     if (!exercise) throw new Error('Exercise not found');
-      
-  //     // 답안 검증
-  //     let isCorrect = false;
-  //     if (Array.isArray(exercise.correctAnswer) && Array.isArray(answer)) {
-  //       // 배열 답안 비교 (순서 무관)
-  //       isCorrect = exercise.correctAnswer.every(item => answer.includes(item)) &&
-  //                 answer.every(item => exercise.correctAnswer.includes(item));
-  //     } else if (!Array.isArray(exercise.correctAnswer) && !Array.isArray(answer)) {
-  //       // 문자열 답안 비교
-  //       isCorrect = exercise.correctAnswer.toLowerCase() === answer.toLowerCase();
-  //     }
-      
-  //     // 결과 저장
-  //     if (state.currentLesson) {
-  //       const response = await lessonApi.saveUserProgress(
-  //         state.currentLesson.id,
-  //         state.lessonProgress,
-  //         isCorrect ? 100 : 50
-  //       );
-        
-  //       // 진행률 업데이트
-  //       const totalExercises = state.currentLesson.exercises.length;
-  //       const completedExercises = state.currentExerciseIndex + 1;
-  //       const newProgress = (completedExercises / totalExercises) * 100;
-        
-  //       setState(prev => ({
-  //         ...prev,
-  //         lessonProgress: newProgress,
-  //         isLoading: false
-  //       }));
-  //     }
-      
-  //     return isCorrect;
-  //   } catch (error) {
-  //     setState(prev => ({ 
-  //       ...prev, 
-  //       isLoading: false, 
-  //       error: error instanceof Error ? error : new Error('Failed to submit answer') 
-  //     }));
-  //     return false;
-  //   }
-  // };
-
-
   const submitExerciseAnswer = async (exerciseId: string, answer: string | string[]): Promise<boolean> => {
     // 로그인 상태가 아니면 함수 실행하지 않음
-    if (!state.isAuthenticated || !state.currentLesson) {
+    if (!isAuthenticated || !state.currentLesson) {
       console.log("User is not authenticated or no active lesson. Cannot submit answer.");
       return false;
     }
-
-    if (!state.currentLesson) return false;
     
     try {
       setState(prev => ({ ...prev, isLoading: true }));
@@ -402,7 +305,7 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
   // 음성 평가 제출
   const submitSpeechEvaluation = async (exerciseId: string, audioBlob: Blob): Promise<PronunciationResult> => {
     // 로그인 상태가 아니면 함수 실행하지 않음
-    if (!state.isAuthenticated || !state.currentLesson) {
+    if (!isAuthenticated || !state.currentLesson) {
       console.log("User is not authenticated or no active lesson. Cannot submit speech evaluation.");
       return {
         score: 0,
@@ -420,20 +323,7 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
         audioBlob
       );
       
-
-
       const result: PronunciationResult = response.data;
-      /*
-      // API 응답이 PronunciationResult 형식인지 확인하고 변환
-      const result: PronunciationResult = {
-        score: response.data.score || 0,
-        feedback: response.data.feedback || '',
-        wordScores: Array.isArray(response.data.wordScores) 
-          ? response.data.wordScores 
-          : []
-      };
-      */
-     
       
       // 결과 저장
       setState(prev => ({
@@ -479,10 +369,20 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     }));
   };
 
-  // 컴포넌트 마운트 시 모든 레슨 가져오기
-  // useEffect(() => {
-  //   fetchAllLessons();
-  // }, []);
+  // 인증 상태가 변경될 때마다 레슨 데이터 다시 로드
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAllLessons();
+    } else {
+      // 로그아웃 시 레슨 상태 초기화
+      resetLessonState();
+      setState(prev => ({
+        ...prev,
+        allLessons: [],
+        completedLessons: []
+      }));
+    }
+  }, [isAuthenticated]);
 
   // 컨텍스트 값
   const contextValue: LessonContextType = {
@@ -494,8 +394,7 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
     submitSpeechEvaluation,
     updateLessonProgress,
     setSpeechSpeed,
-    resetLessonState,
-    setIsAuthenticated
+    resetLessonState
   };
 
   return (

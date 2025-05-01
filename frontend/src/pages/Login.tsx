@@ -25,6 +25,7 @@ const Login: React.FC = () => {
 
   // 이미 로그인되어 있으면 원래 가려던 경로로 리다이렉트
   useEffect(() => {
+    console.log("Auth State Changed:", { isAuthenticated, isLoading });
     if (isAuthenticated) {
       navigate(from, { replace: true });
     }
