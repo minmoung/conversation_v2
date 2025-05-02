@@ -82,7 +82,21 @@ def login(
     db.add(db_refresh_token)
     db.commit()
     
-    return {"token": access_token, "refresh_token": refresh_token_str}
+    # 사용자 정보를 포함하여 반환 (수정된 부분)
+    # 민감한 정보를 제외한 사용자 정보만 반환
+    user_data = {
+        "id": user.id,
+        "email": user.email,
+        "name": user.name,
+        # 필요한 다른 사용자 필드들 추가
+    }
+
+    
+    print("user.id ->" , user.id);
+    print("user.email ->" , user.email);
+    print("access_token ->" , access_token);
+    print("refresh_token_str ->" , refresh_token_str);
+    return {"token": access_token, "refresh_token": refresh_token_str, "user": user_data};
 
 @router.post("/refresh", response_model=Token)
 def refresh_token(
