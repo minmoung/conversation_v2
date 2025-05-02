@@ -75,15 +75,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // 로그인 API 호출
       const response = await authApi.login(email, password);
-      const { user, token, refreshToken } = response.data;
+      const { user, token, refresh_token } = response.data;
       
       // 사용자 정보 저장
       // 토큰 저장
       alert(user);
       alert(token);
-      alert(refreshToken);
+      alert(refresh_token);
       localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('refresh_token', refresh_token);
       console.log('로그인 성공:', response.data);
       setState({
         user,
@@ -118,11 +118,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // 회원가입 API 호출
       const response = await authApi.register(name, email, password);
-      const { user, token, refreshToken } = response.data;
+      const { user, token, refresh_token } = response.data;
       
       // 토큰 저장
       localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('refresh_token', refresh_token);
       
       setState({
         user,
@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // 로컬 스토리지 토큰 제거
       localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('refresh_token');
       
       setState({
         user: null,
@@ -234,7 +234,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error("Auth check error:", error);
       // 토큰이 유효하지 않은 경우 로그아웃 처리
       localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('refresh_token');
       
       setState({
         user: null,

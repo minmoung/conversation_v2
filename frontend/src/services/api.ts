@@ -17,10 +17,11 @@ api.interceptors.request.use(
     // 로컬 스토리지에서 토큰 가져오기
     const token = localStorage.getItem('token');
     
-    console.log('0. token in localStorage: ', token);
+    // console.log('0. token in localStorage: ', token);
     // 토큰이 있으면 헤더에 추가
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('토큰정보 셋팅완료', token);
     }
     
     return config;
@@ -62,9 +63,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       originalRequest._retry = true;
       
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refresh_token = localStorage.getItem('refresh_token');
       
-      if (!refreshToken) {
+      alert("refreshToken == >" + refresh_token);
+      if (!refresh_token) {
         // 리프레시 토큰이 없으면 로그인 페이지로 리다이렉트
         localStorage.removeItem('token');
         window.location.href = '/';
@@ -86,7 +88,7 @@ api.interceptors.response.use(
       try {
         // 리프레시 토큰으로 새 액세스 토큰 요청
         const response = await axios.post(`${BASE_URL}/api/auth/refresh`, {
-          refreshToken
+          refresh_token
         });
         
         // 새 토큰 저장
@@ -102,8 +104,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // 리프레시 실패 시 로그아웃
         localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        //window.location.href = '/';
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/';
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
