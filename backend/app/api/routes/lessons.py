@@ -2,6 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Response
 from sqlalchemy.orm import Session
 from app.api.tts import text_to_speech
+from app.api.tts import text_to_speech_with_pydub
 from pydantic import BaseModel
 import os
 import tempfile
@@ -217,5 +218,10 @@ def tts(req: TextRequest):
     텍스트를 음성으로 변환하는 TTS 엔드포인트
     """
     print(" ======= call tts ======")
-    audio_data = text_to_speech(req.text)
+
+    test = "My name is Min seo-rin. I am 8 years old. I live in ILSAN. I like to play song. I become to singer."
+
+    #audio_data = text_to_speech(req.text)
+    #audio_data = text_to_speech(test)
+    audio_data = text_to_speech_with_pydub(test)
     return Response(content=audio_data.read(), media_type="audio/mpeg")
