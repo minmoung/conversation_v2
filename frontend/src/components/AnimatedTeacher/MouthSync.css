@@ -1,0 +1,266 @@
+/* MouthSync.css */
+.mouth-container {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mouth {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background-color: transparent;
+  overflow: hidden;
+  transition: all 0.1s ease-in-out;
+  transform-origin: center;
+}
+
+.upper-lip, .lower-lip {
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  background-color: #d88c81;
+  transition: all 0.15s ease-in-out;
+}
+
+.upper-lip {
+  top: 0;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid #c47c71;
+}
+
+.lower-lip {
+  bottom: 0;
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid #c47c71;
+}
+
+.mouth-interior {
+  position: absolute;
+  background-color: #8d3027;
+  width: 80%;
+  height: 60%;
+  left: 10%;
+  top: 20%;
+  border-radius: 50%;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: all 0.15s ease-in-out;
+}
+
+.mouth-teeth {
+  position: absolute;
+  width: 80%;
+  height: 4px;
+  background-color: white;
+  left: 10%;
+  border-radius: 1px;
+  opacity: 0;
+  transition: all 0.15s ease-in-out;
+}
+
+.upper-teeth {
+  top: 30%;
+}
+
+.lower-teeth {
+  bottom: 30%;
+}
+
+/* Mouth shapes based on phonemes */
+/* Neutral position when not speaking */
+.mouth.neutral {
+  height: 10px;
+}
+
+.mouth.neutral .mouth-interior {
+  transform: scaleY(0);
+}
+
+.mouth.neutral .upper-lip,
+.mouth.neutral .lower-lip {
+  height: 50%;
+}
+
+.mouth.neutral .mouth-teeth {
+  opacity: 0;
+}
+
+/* Slight variation for idle animation */
+.mouth.neutral-slight {
+  height: 8px;
+}
+
+.mouth.neutral-slight .upper-lip {
+  height: 45%;
+}
+
+.mouth.neutral-slight .lower-lip {
+  height: 55%;
+}
+
+/* Open mouth for vowels */
+.mouth.open {
+  height: 18px;
+}
+
+.mouth.open .mouth-interior {
+  transform: scaleY(0.8);
+}
+
+.mouth.open .upper-lip {
+  height: 35%;
+  transform: translateY(-1px);
+}
+
+.mouth.open .lower-lip {
+  height: 35%;
+  transform: translateY(1px);
+}
+
+.mouth.open .mouth-teeth {
+  opacity: 0.8;
+}
+
+/* Wide mouth for certain vowels and diphthongs */
+.mouth.wide {
+  width: 44px;
+  height: 12px;
+}
+
+.mouth.wide .mouth-interior {
+  transform: scaleY(0.6);
+  width: 85%;
+  left: 7.5%;
+}
+
+.mouth.wide .upper-teeth,
+.mouth.wide .lower-teeth {
+  width: 85%;
+  left: 7.5%;
+  opacity: 0.9;
+}
+
+/* Rounded mouth for rounded vowels */
+.mouth.rounded {
+  width: 30px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.mouth.rounded .mouth-interior {
+  transform: scaleY(0.9);
+  width: 75%;
+  height: 75%;
+  left: 12.5%;
+  top: 12.5%;
+  border-radius: 50%;
+}
+
+.mouth.rounded .upper-lip,
+.mouth.rounded .lower-lip {
+  height: 50%;
+  border-radius: 15px;
+}
+
+.mouth.rounded .mouth-teeth {
+  opacity: 0.7;
+  width: 70%;
+  left: 15%;
+}
+
+/* Small mouth for certain consonants */
+.mouth.small {
+  width: 30px;
+  height: 10px;
+}
+
+.mouth.small .mouth-interior {
+  transform: scaleY(0.5);
+  width: 70%;
+  left: 15%;
+}
+
+.mouth.small .upper-teeth,
+.mouth.small .lower-teeth {
+  width: 70%;
+  left: 15%;
+  opacity: 0.7;
+}
+
+/* Closed mouth for bilabial consonants */
+.mouth.closed {
+  height: 6px;
+}
+
+.mouth.closed .mouth-interior {
+  transform: scaleY(0);
+}
+
+.mouth.closed .upper-lip,
+.mouth.closed .lower-lip {
+  height: 50%;
+}
+
+.mouth.closed .mouth-teeth {
+  opacity: 0;
+}
+
+/* Teeth showing for labiodental consonants */
+.mouth.teeth {
+  height: 14px;
+}
+
+.mouth.teeth .mouth-interior {
+  transform: scaleY(0.4);
+}
+
+.mouth.teeth .upper-lip {
+  height: 30%;
+  transform: translateY(-2px);
+}
+
+.mouth.teeth .lower-lip {
+  height: 40%;
+  transform: translateY(2px);
+}
+
+.mouth.teeth .upper-teeth {
+  opacity: 1;
+  transform: translateY(1px);
+}
+
+.mouth.teeth .lower-teeth {
+  opacity: 0.9;
+}
+
+/* Add animation for transitions */
+@keyframes mouthBlink {
+  0% { transform: scaleY(1); }
+  10% { transform: scaleY(0.1); }
+  12% { transform: scaleY(1); }
+  100% { transform: scaleY(1); }
+}
+
+/* Animation for occasional blinking/movement */
+.mouth-animate {
+  animation: mouthBlink 5s ease-in-out infinite;
+  animation-delay: 3s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mouth-container {
+    width: 30px;
+    height: 15px;
+  }
+  
+  .mouth-teeth {
+    height: 3px;
+  }
+}

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { LessonContent } from '../types/lesson';
+import { Console } from 'console';
 
 //const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -14,14 +15,21 @@ export const api = axios.create({
 // 요청 인터셉터 설정
 api.interceptors.request.use(
   (config) => {
+    
     // 로컬 스토리지에서 토큰 가져오기
     const token = localStorage.getItem('token');
+    console.log('API 요청 URL:', config.url);
+    // console.log('현재 토큰:', token);
     
     // console.log('0. token in localStorage: ', token);
     // 토큰이 있으면 헤더에 추가
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('토큰정보 셋팅완료', token);
+      console.log('Authorization 헤더 설정됨:', config.headers.Authorization);
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('토큰 만료 시간:', new Date(payload.exp * 1000));
+    } else {
+      console.log('토큰 없음, Authorization 헤더 설정 안 됨');
     }
     
     return config;
@@ -153,7 +161,7 @@ export const lessonApi = {
   getLessonById: (lessonId: string) => 
     api.get(`/api/lessons/${lessonId}`),
     
-  getUserProgress: () => api.get('/api/user/progress'),
+  //getUserProgress: () => api.get('/api/user/progress'),
   
   submitSpeechEvaluation: (lessonId: string, audioBlob: Blob) => {
     const formData = new FormData();
@@ -237,3 +245,10 @@ export const fetchLessonById = async (lessonId: string): Promise<LessonContent> 
 export const getUserProfile = (userId: string) => api.get(`/api/users/${userId}/profile`);
 export const getUserStats = (userId: string) => api.get(`/api/users/${userId}/stats`);
 export const getUserBadges = (userId: string) => api.get(`/api/users/${userId}/badges`);
+
+// TTS 요청 함수
+export const fetchTTS = async (text: string): Promise<Blob> => {
+  console.log('TTS 요청 텍스트:', text);
+  const response = await api.post('/api/lessons/tts', { text }, { responseType: 'blob' });
+  return response.data; // Blob 데이터 반환
+};

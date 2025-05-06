@@ -8,7 +8,7 @@ import AudioControls from '../components/AudioControls/AudioControls';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { LessonContent, Dialogue } from '../types/lesson';
-import { fetchLessonById } from '../services/api';
+import { fetchLessonById, fetchTTS } from '../services/api';
 
 const Lesson: React.FC = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -62,27 +62,58 @@ const Lesson: React.FC = () => {
     setFeedback('');
   };
 
+  // // 선생님 말하기 실행
+  // const handleTeacherSpeak = async () => {
+  //   if (!lessonData) return;
+    
+  //   const dialogue = lessonData.dialogues[currentDialogueIndex];
+  //   console.log('currentDialogueIndex :: ' + currentDialogueIndex );
+  //   console.log('dialogue :: ' + dialogue );
+  //   const teacherLine = dialogue.teacherLine;
+  //   console.log('teacherLine :: ' + teacherLine );
+
+  //   setIsSpeaking(true);
+    
+  //   // 간단한 시뮬레이션 (실제로는 TTS 서비스를 사용하겠지만 여기선 타이머로 대체)
+  //   const mockPhonemes = teacherLine.split(' ').flatMap(word => 
+  //     ['AA', 'B', 'EH', 'D', 'F', 'G', 'IY'].slice(0, Math.ceil(word.length / 2))
+  //   );
+  //   setCurrentPhonemes(mockPhonemes);
+    
+  //   // 말하기 시뮬레이션
+  //   setTimeout(() => {
+  //     setIsSpeaking(false);
+  //     setCurrentPhonemes([]);
+  //   }, teacherLine.length * 100 / speechRate);
+  // };
+
   // 선생님 말하기 실행
   const handleTeacherSpeak = async () => {
     if (!lessonData) return;
-    
+  
     const dialogue = lessonData.dialogues[currentDialogueIndex];
     const teacherLine = dialogue.teacherLine;
-    
+    console.log('teacherLine :: ' + teacherLine);
+  
     setIsSpeaking(true);
-    
-    // 간단한 시뮬레이션 (실제로는 TTS 서비스를 사용하겠지만 여기선 타이머로 대체)
-    const mockPhonemes = teacherLine.split(' ').flatMap(word => 
-      ['AA', 'B', 'EH', 'D', 'F', 'G', 'IY'].slice(0, Math.ceil(word.length / 2))
-    );
-    setCurrentPhonemes(mockPhonemes);
-    
-    // 말하기 시뮬레이션
-    setTimeout(() => {
+  
+    try {
+      // TTS API 호출
+      const audioBlob = await fetchTTS(teacherLine);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+  
+      // 오디오 재생이 끝난 후 상태 업데이트
+      audio.onended = () => {
+        setIsSpeaking(false);
+      };
+    } catch (error) {
+      console.error('TTS 요청 중 오류 발생:', error);
       setIsSpeaking(false);
-      setCurrentPhonemes([]);
-    }, teacherLine.length * 100 / speechRate);
+    }
   };
+
 
   // 학생 응답 평가
   const evaluateStudentResponse = async () => {

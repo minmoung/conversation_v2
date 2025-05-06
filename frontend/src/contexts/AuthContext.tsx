@@ -79,9 +79,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // 사용자 정보 저장
       // 토큰 저장
-      alert(user);
-      alert(token);
-      alert(refresh_token);
       localStorage.setItem('token', token);
       localStorage.setItem('refresh_token', refresh_token);
       console.log('로그인 성공:', response.data);
@@ -92,7 +89,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: null
       });
 
-      
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // alert(JSON.stringify(error.response?.data, null, 2));

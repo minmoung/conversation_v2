@@ -165,19 +165,19 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
       const lessonData = response.data;
       
       // 사용자 진행 상황 요청
-      const progressResponse = await lessonApi.getUserProgress();
-      const userProgress = progressResponse.data.lessons.find(
-        (progress: UserProgress) => progress.lessonId === lessonId
-      ) || null;
+      // const progressResponse = await lessonApi.getUserProgress();
+      // const userProgress = progressResponse.data.lessons.find(
+      //   (progress: UserProgress) => progress.lessonId === lessonId
+      // ) || null;
       
-      setState(prev => ({
-        ...prev,
-        currentLesson: lessonData,
-        userLessonProgress: userProgress,
-        isLoading: false,
-        lessonProgress: userProgress ? 
-          (userProgress.exercises.filter((ex: { exerciseId: string; completed: boolean; score: number }) => ex.completed).length / lessonData.exercises.length) * 100 : 0
-      }));
+      // setState(prev => ({
+      //   ...prev,
+      //   currentLesson: lessonData,
+      //   userLessonProgress: userProgress,
+      //   isLoading: false,
+      //   lessonProgress: userProgress ? 
+      //     (userProgress.exercises.filter((ex: { exerciseId: string; completed: boolean; score: number }) => ex.completed).length / lessonData.exercises.length) * 100 : 0
+      // }));
     } catch (error) {
       setState(prev => ({ 
         ...prev, 
@@ -191,7 +191,6 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
   const fetchAllLessons = async () => {
     // 로그인 상태가 아니면 함수 실행하지 않음
     if (!isAuthenticated) {
-      alert("fetchAllLessons");
       console.log("User is not authenticated. Cannot fetch all lessons.");
       return;
     }
@@ -204,24 +203,33 @@ export const LessonProvider: React.FC<LessonProviderProps> = ({ children }) => {
       try {
         const response = await lessonApi.getLessons();
         lessons = response.data;
+        console.log("Fetched lessons:", lessons);
       } catch (err) {
         console.error("Error fetching lessons:", err);
       }
 
       // 사용자 진행 상황 요청
-      const progressResponse = await lessonApi.getUserProgress();
+      // const progressResponse = await lessonApi.getUserProgress();
       
-      // 완료된 레슨 ID 목록 추출
-      const completedLessonIds = progressResponse.data.lessons
-        .filter((progress: UserProgress) => progress.completed)
-        .map((progress: UserProgress) => progress.lessonId);
+      // // 완료된 레슨 ID 목록 추출
+      // const completedLessonIds = progressResponse.data.lessons
+      //   .filter((progress: UserProgress) => progress.completed)
+      //   .map((progress: UserProgress) => progress.lessonId);
       
+      // setState(prev => ({
+      //   ...prev,
+      //   allLessons: lessons,
+      //   completedLessons: completedLessonIds,
+      //   isLoading: false
+      // }));
+
       setState(prev => ({
         ...prev,
         allLessons: lessons,
-        completedLessons: completedLessonIds,
         isLoading: false
       }));
+
+
     } catch (error) {
       setState(prev => ({ 
         ...prev, 

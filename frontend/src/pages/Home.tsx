@@ -9,6 +9,9 @@ import TeacherAvatar from '../components/AnimatedTeacher/TeacherAvatar';
 
 // 레슨 카드 컴포넌트
 const LessonCard: React.FC<{ lesson: Lesson; onSelect: (id: string) => void }> = ({ lesson, onSelect }) => {
+  if (!lesson || !lesson.dialogues || !lesson.vocabulary || !lesson.exercises) {
+    return null; // lesson 데이터가 유효하지 않으면 아무것도 렌더링하지 않음
+  }
   return (
     <div className="lesson-card" onClick={() => onSelect(lesson.id)}>
       <div className="lesson-card-icon">
@@ -33,7 +36,7 @@ const Home: React.FC = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { 
     allLessons, 
-    fetchAllLessons, 
+    //fetchAllLessons, 
     isLoading: lessonsLoading,
   } = useLessonContext();
   
@@ -60,14 +63,15 @@ const Home: React.FC = () => {
   // 레슨 선택 처리
   const handleSelectLesson = (lessonId: string) => {
     console.log(`Selected lesson ID: ${lessonId}`);
-    navigate(`/lesson/${lessonId}`);
+    //navigate(`/lesson/${lessonId}`);
+    navigate(`/lesson/lesson1`);
   };
   
   // 초기화 및 인증 상태 설정
   useEffect(() => {
     // 인증 상태를 LessonContext에 설정
     if (isAuthenticated && !initialized) {
-      alert('Welcome to the English Learning App!');
+      //alert('Welcome to the English Learning App!');
       setInitialized(true);
     }
   }, [isAuthenticated, initialized]);
@@ -81,7 +85,7 @@ const Home: React.FC = () => {
       if (hour < 12) greeting = 'Good morning';
       else if (hour < 18) greeting = 'Good afternoon';
       else greeting = 'Good evening';
-      alert(`환영합니다, ${user.name}!`);
+      //alert(`환영합니다, ${user.name}!`);
       setWelcomeMessage(`${greeting}, ${user.name}! Ready for your English lesson?`);
       
       // 환영 메시지 음성 재생 시뮬레이션
@@ -218,6 +222,7 @@ const Home: React.FC = () => {
       </main>
       
       <div className="quick-start-fab" onClick={() => {
+        // console.log('allLessons.length ::' + allLessons.length);
         if (allLessons.length > 0) {
           handleSelectLesson(allLessons[0].id);
         }
