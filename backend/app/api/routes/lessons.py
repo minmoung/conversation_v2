@@ -1,6 +1,8 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Response
 from sqlalchemy.orm import Session
+from app.api.tts import text_to_speech
+from pydantic import BaseModel
 import os
 import tempfile
 
@@ -26,8 +28,8 @@ def get_lessons(
     """
     사용 가능한 모든 레슨 목록 조회
     """
-    print(" ======= call lessons ======")
     lessons = db.query(Lesson).filter(Lesson.is_active == True).all()
+    print("lessons: ", lessons);
     return lessons
 
 @router.get("/{lesson_id}", response_model=LessonContent)
@@ -205,3 +207,15 @@ def get_user_progress(
     ).all()
     
     return progress_list
+
+class TextRequest(BaseModel):
+    text: str
+
+@router.post("/tts")
+def tts(req: TextRequest):
+    """
+    텍스트를 음성으로 변환하는 TTS 엔드포인트
+    """
+    print(" ======= call tts ======")
+    audio_data = text_to_speech(req.text)
+    return Response(content=audio_data.read(), media_type="audio/mpeg")
