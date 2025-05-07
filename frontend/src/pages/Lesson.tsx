@@ -9,6 +9,7 @@ import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { LessonContent, Dialogue } from '../types/lesson';
 import { fetchLessonById, fetchTTS } from '../services/api';
+import ChatBox from '../components/Chatbot/ChatBox';
 
 const Lesson: React.FC = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -269,6 +270,11 @@ const Lesson: React.FC = () => {
           다음
         </button>
       </div>
+
+      <div className="bg-white p-4 shadow-inner flex justify-between">
+        <ChatBox />
+      </div>
+      
     </div>
   );
 };
