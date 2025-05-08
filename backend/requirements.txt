@@ -33,3 +33,8 @@ httpx==0.24.0
 
 # 기타
 python-dotenv==1.0.0
+
+
+# AI 관련 패키지
+accelerate
+transformers
