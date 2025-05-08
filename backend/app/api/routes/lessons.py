@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,
 from sqlalchemy.orm import Session
 from app.api.tts import text_to_speech
 from app.api.tts import text_to_speech_with_pydub
+from app.api.AI_model import  generate_response
 from pydantic import BaseModel
 import os
 import tempfile
@@ -225,3 +226,14 @@ def tts(req: TextRequest):
     #audio_data = text_to_speech(test)
     audio_data = text_to_speech_with_pydub(test)
     return Response(content=audio_data.read(), media_type="audio/mpeg")
+
+
+@app.post("/chat")
+def chat(req: TextRequest):
+    print("👉 Received request:", req)
+    print("📥 Input text:", req.text)
+
+    reply = generate_response(req.text)
+    print("📤 Generated reply:", reply)
+
+    return {"reply": reply}
