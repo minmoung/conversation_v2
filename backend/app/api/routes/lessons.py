@@ -228,7 +228,7 @@ def tts(req: TextRequest):
     return Response(content=audio_data.read(), media_type="audio/mpeg")
 
 
-@app.post("/chat")
+@router.post("/chat")
 def chat(req: TextRequest):
     print("👉 Received request:", req)
     print("📥 Input text:", req.text)

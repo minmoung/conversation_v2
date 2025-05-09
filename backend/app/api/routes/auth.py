@@ -69,6 +69,14 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    if(user.is_active == False or user.is_active == None):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="사용자가 비활성화 상태입니다.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    print("user.is_active ->" , user.is_active);
     # 토큰 생성
     access_token = create_access_token(user.id)
     refresh_token_str, expires_at = create_refresh_token(user.id)
@@ -92,10 +100,10 @@ def login(
     }
 
     
-    print("user.id ->" , user.id);
-    print("user.email ->" , user.email);
-    print("access_token ->" , access_token);
-    print("refresh_token_str ->" , refresh_token_str);
+    # print("user.id ->" , user.id);
+    # print("user.email ->" , user.email);
+    # print("access_token ->" , access_token);
+    # print("refresh_token_str ->" , refresh_token_str);
     return {"token": access_token, "refresh_token": refresh_token_str, "user": user_data};
 
 @router.post("/refresh", response_model=Token)
