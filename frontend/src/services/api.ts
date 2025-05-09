@@ -255,12 +255,24 @@ export const fetchTTS = async (text: string): Promise<Blob> => {
 
 // AI에 메시지 전송 함수
 export const sendMessageToAI = async (text: string) => {
-  const response = await fetch("http://127.0.0.1:8000/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
-  return response.json();
+  const response = await api.post('/api/lessons/chat', { text }, { responseType: 'blob' });
+  
+  // const response = await fetch("/api/lessons/chat", {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify({ text }),
+  // });
+  return response.data;
 };
+
+// AI에 메시지 전송 함수(Orignal)
+// export const sendMessageToAI = async (text: string) => {
+//   const response = await fetch("http://127.0.0.1:8000/chat", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ text }),
+//   });
+//   return response.json();
+// };
 
 
