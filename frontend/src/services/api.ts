@@ -255,14 +255,28 @@ export const fetchTTS = async (text: string): Promise<Blob> => {
 
 // AI에 메시지 전송 함수
 export const sendMessageToAI = async (text: string) => {
-  const response = await api.post('/api/lessons/chat', { text }, { responseType: 'blob' });
+  // const response = await api.post('/api/lessons/chat', { text }, { responseType: 'blob' });
+  const response = await api.post('/api/lessons/chat', { text });
   
   // const response = await fetch("/api/lessons/chat", {
   //   method: "POST",
   //   headers: { "Content-Type": "application/json" },
   //   body: JSON.stringify({ text }),
   // });
+
+  console.log('AI 응답 1 :', response);
+  console.log('AI 응답 2 :', response.data);
+
+  //const tts = "Hello, little friend! 😊 My name is Teacher Sunny! 🌞 What's your name? (You can say: 'My name is ___')";
+  //const audioBlob = await fetchTTS(resptts);
+  
+  const audioBlob = await fetchTTS(response.data.reply);
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = new Audio(audioUrl);
+  audio.play();
+    
   return response.data;
+  //return {reply:tts};
 };
 
 // AI에 메시지 전송 함수(Orignal)
