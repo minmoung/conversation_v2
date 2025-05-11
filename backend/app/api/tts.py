@@ -86,7 +86,7 @@ def text_to_speech_back(text: str, speed: float = 1.0) -> io.BytesIO:
         return audio_bytes
 
 # FFmpeg가 설치되어 있다면 pydub 사용 방법
-def text_to_speech_with_pydub(text: str, speed: float = 1.5) -> io.BytesIO:
+def text_to_speech_with_pydub(text: str, speed: float = 1.0) -> io.BytesIO:
     """
     pydub를 사용하여 텍스트를 음성으로 변환하고 속도를 조절합니다.
     이 함수는 FFmpeg가 설치된 환경에서만 작동합니다.
