@@ -1,0 +1,232 @@
+/* AnimatedTeacherCard.css */
+.teacher-card {
+display: flex;
+flex-direction: column;
+width: 300px;
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+background-color: white;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+cursor: pointer;
+position: relative;
+margin: 1rem;
+}
+.teacher-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+.teacher-photo-container {
+position: relative;
+width: 100%;
+height: 220px;
+overflow: hidden;
+background-color: #f5f5f5;
+}
+.teacher-face {
+position: relative;
+width: 100%;
+height: 100%;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.teacher-photo {
+width: 100%;
+height: 100%;
+object-fit: cover;
+object-position: center 20%;
+transition: all 0.3s ease;
+}
+.teacher-mouth {
+position: absolute;
+bottom: 30%;
+left: 50%;
+transform: translateX(-50%);
+width: 20px;
+height: 3px;
+background-color: rgba(0, 0, 0, 0.7);
+border-radius: 3px;
+z-index: 2;
+transition: all 0.1s ease;
+opacity: 0;
+}
+.teacher-face.speaking .teacher-mouth {
+opacity: 1;
+}
+.teacher-mouth.speaking-vowel {
+height: 8px;
+width: 16px;
+border-radius: 50%;
+background-color: rgba(0, 0, 0, 0.7);
+}
+.teacher-mouth.speaking-consonant {
+height: 5px;
+width: 18px;
+border-radius: 3px;
+background-color: rgba(0, 0, 0, 0.7);
+}
+.teacher-mouth.speaking-pause {
+height: 2px;
+width: 14px;
+background-color: rgba(0, 0, 0, 0.7);
+}
+.speech-bubble {
+position: absolute;
+top: 10px;
+left: 10px;
+background-color: white;
+border-radius: 8px;
+padding: 8px 12px;
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+max-width: 80%;
+z-index: 3;
+animation: fadeIn 0.3s ease;
+}
+.speech-bubble:after {
+content: '';
+position: absolute;
+bottom: -10px;
+left: 15px;
+border-width: 10px 10px 0;
+border-style: solid;
+border-color: white transparent;
+}
+.listen-button {
+position: absolute;
+bottom: 10px;
+right: 10px;
+background-color: rgba(0, 0, 0, 0.6);
+color: white;
+border: none;
+border-radius: 20px;
+padding: 6px 12px;
+font-size: 12px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+z-index: 3;
+}
+.listen-button:hover:not(:disabled) {
+background-color: rgba(0, 0, 0, 0.8);
+}
+.listen-button:disabled {
+background-color: rgba(0, 0, 0, 0.3);
+cursor: not-allowed;
+}
+.teacher-status {
+position: absolute;
+bottom: 10px;
+left: 10px;
+width: 12px;
+height: 12px;
+border-radius: 50%;
+border: 2px solid white;
+z-index: 2;
+}
+.teacher-status.online {
+background-color: #4CAF50;
+}
+.teacher-status.offline {
+background-color: #9e9e9e;
+}
+.teacher-info {
+padding: 15px;
+flex-grow: 1;
+}
+.teacher-name-container {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 8px;
+}
+.teacher-name {
+margin: 0;
+font-size: 18px;
+font-weight: 600;
+color: #333;
+}
+.teacher-rating {
+display: flex;
+align-items: center;
+}
+.star {
+color: #e0e0e0;
+font-size: 16px;
+margin-right: 1px;
+}
+.star.filled {
+color: #FFC107;
+}
+.star.half-filled {
+background: linear-gradient(90deg, #FFC107 50%, #e0e0e0 50%);
+-webkit-background-clip: text;
+color: transparent;
+}
+.rating-number {
+margin-left: 4px;
+font-size: 14px;
+color: #757575;
+}
+.teacher-specialty {
+margin: 0 0 8px;
+font-size: 14px;
+color: #424242;
+}
+.teacher-languages {
+display: flex;
+flex-wrap: wrap;
+margin-bottom: 8px;
+}
+.language-badge {
+background-color: #f1f1f1;
+color: #666;
+font-size: 12px;
+padding: 4px 8px;
+border-radius: 12px;
+margin-right: 6px;
+margin-bottom: 6px;
+}
+.teacher-availability {
+display: flex;
+align-items: center;
+margin: 0;
+font-size: 13px;
+color: #666;
+}
+.availability-icon {
+margin-right: 5px;
+}
+.teacher-action-buttons {
+display: flex;
+padding: 0 15px 15px;
+}
+.view-profile-btn,
+.book-lesson-btn {
+flex: 1;
+padding: 10px 0;
+border: none;
+border-radius: 6px;
+font-size: 14px;
+font-weight: 500;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+.view-profile-btn {
+background-color: #f5f5f5;
+color: #333;
+margin-right: 8px;
+}
+.view-profile-btn:hover {
+background-color: #e0e0e0;
+}
+.book-lesson-btn {
+background-color: #4285F4;
+color: white;
+}
+.book-lesson-btn:hover {
+background-color: #3367D6;
+}
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}

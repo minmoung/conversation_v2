@@ -1,0 +1,214 @@
+/* Home.css */
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  /* 헤더 스타일 */
+  .home-header {
+    margin-bottom: 40px;
+  }
+  
+  .welcome-section {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .teacher-container {
+    width: 120px;
+    height: 120px;
+    margin-right: 20px;
+  }
+  
+  .welcome-text h1 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .user-stats {
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  /* 로딩 애니메이션 */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70vh;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* 레슨 섹션 스타일 */
+  .home-content {
+    margin-bottom: 80px; /* 하단 FAB 버튼 공간 확보 */
+  }
+  
+  .lesson-section {
+    margin-bottom: 40px;
+  }
+  
+  .lesson-section h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 8px;
+  }
+  
+  .lesson-section h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: #3498db;
+  }
+  
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  /* 레슨 카드 스타일 */
+  .lesson-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .lesson-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+  }
+  
+  .lesson-card h3 {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .lesson-card p {
+    color: #666;
+    margin: 10px 0;
+    font-size: 0.9rem;
+  }
+  
+  .lesson-card-icon {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .level-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    display: inline-block;
+  }
+  
+  .beginner {
+    background-color: #27ae60;
+  }
+  
+  .intermediate {
+    background-color: #f39c12;
+  }
+  
+  .advanced {
+    background-color: #e74c3c;
+  }
+  
+  .lesson-card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    color: #888;
+    font-size: 0.8rem;
+  }
+  
+  .no-lessons {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  /* 빠른 시작 FAB 버튼 */
+  .quick-start-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 120px;
+    height: 50px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    z-index: 100;
+  }
+  
+  .quick-start-fab:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+  }
+  
+  .quick-start-fab span {
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+  /* 반응형 스타일 */
+  @media (max-width: 768px) {
+    .welcome-section {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .teacher-container {
+      margin-right: 0;
+      margin-bottom: 15px;
+    }
+    
+    .lesson-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .quick-start-fab {
+      bottom: 20px;
+      right: 20px;
+    }
+  }

@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 import { authApi } from '../services/api';
 import axios from 'axios';
 
-// 사용자 타입 정의 - recentTeachers와 completedClasses 속성 추가
+// 사용자 타입 정의
 export interface User {
   id: string;
   name: string;
@@ -11,8 +11,6 @@ export interface User {
   role: 'student' | 'teacher' | 'admin';
   level?: 'beginner' | 'intermediate' | 'advanced';
   createdAt: string;
-  recentTeachers?: string[]; // 최근 수업한 선생님 ID 배열
-  completedClasses?: number; // 완료한 수업 수
 }
 
 // 인증 컨텍스트 상태 타입

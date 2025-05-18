@@ -1,214 +1,408 @@
 /* Home.css */
+
+/* Main container styling */
 .home-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* Header section */
+.home-header {
+  background: linear-gradient(135deg, #1e88e5, #3949ab);
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-section {
+  text-align: center;
+}
+
+.welcome-section h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.user-stats {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Search and Filter Section */
+.search-filter-section {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #1e88e5;
+}
+
+.search-button {
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-button:hover {
+  background-color: #1976d2;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #424242;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+  min-width: 150px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* Main content area */
+.home-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Teachers section */
+.teachers-section {
+  margin-bottom: 20px;
+}
+
+.teachers-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 700;
+  border-left: 5px solid #1e88e5;
+  padding-left: 15px;
+}
+
+.teachers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.no-teachers {
+  text-align: center;
+  padding: 40px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  color: #757575;
+  font-size: 1.1rem;
+}
+
+/* Teacher card styling */
+.teacher-card {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.teacher-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.teacher-card-header {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.teacher-image-container {
+  width: 100%;
+  height: 100%;
+}
+
+.teacher-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+
+.teacher-card:hover .teacher-image {
+  transform: scale(1.05);
+}
+
+.teacher-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.level-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: white;
+}
+
+.level-badge.beginner {
+  background-color: #4caf50;
+}
+
+.level-badge.intermediate {
+  background-color: #2196f3;
+}
+
+.level-badge.advanced {
+  background-color: #9c27b0;
+}
+
+.level-badge.all {
+  background-color: #ff9800;
+}
+
+.teacher-card-content {
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.teacher-card-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.teacher-specialty {
+  color: #1e88e5;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.teacher-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.star {
+  color: #ddd;
+  font-size: 1.2rem;
+  margin-right: 2px;
+}
+
+.star.filled {
+  color: #ffc107;
+}
+
+.star.half-filled {
+  position: relative;
+  color: #ddd;
+}
+
+.star.half-filled::before {
+  content: '★';
+  position: absolute;
+  left: 0;
+  color: #ffc107;
+  width: 50%;
+  overflow: hidden;
+}
+
+.rating-value {
+  margin-left: 5px;
+  color: #757575;
+  font-size: 0.9rem;
+}
+
+.teacher-brief {
+  margin-bottom: 15px;
+}
+
+.teacher-brief p {
+  margin: 5px 0;
+  color: #616161;
+  font-size: 0.95rem;
+}
+
+.teacher-brief .label {
+  font-weight: 600;
+  margin-right: 5px;
+  color: #424242;
+}
+
+.teacher-card-footer {
+  padding: 15px 20px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.view-profile-btn, .book-class-btn {
+  padding: 10px 0;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.view-profile-btn {
+  background-color: #f5f5f5;
+  color: #424242;
+  border: 1px solid #e0e0e0;
+}
+
+.view-profile-btn:hover {
+  background-color: #eeeeee;
+}
+
+.book-class-btn {
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+}
+
+.book-class-btn:hover {
+  background-color: #1976d2;
+}
+
+/* Action FAB */
+.quick-action-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+}
+
+.quick-action-fab button {
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 15px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(30, 136, 229, 0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.quick-action-fab button:hover {
+  background-color: #1976d2;
+  box-shadow: 0 6px 15px rgba(30, 136, 229, 0.5);
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #1e88e5;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .teachers-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
   
-  /* 헤더 스타일 */
-  .home-header {
-    margin-bottom: 40px;
-  }
-  
-  .welcome-section {
-    display: flex;
-    align-items: center;
-    background-color: #f8f9fa;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .teacher-container {
-    width: 120px;
-    height: 120px;
-    margin-right: 20px;
-  }
-  
-  .welcome-text h1 {
-    font-size: 1.8rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .user-stats {
-    color: #666;
-    font-size: 1rem;
-  }
-  
-  /* 로딩 애니메이션 */
-  .loading-container {
-    display: flex;
+  .filters {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 70vh;
+    gap: 15px;
   }
   
-  .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    border-top-color: #3498db;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
+  .filter-group {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  .filter-group select {
+    width: 100%;
   }
-  
-  /* 레슨 섹션 스타일 */
-  .home-content {
-    margin-bottom: 80px; /* 하단 FAB 버튼 공간 확보 */
-  }
-  
-  .lesson-section {
-    margin-bottom: 40px;
-  }
-  
-  .lesson-section h2 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 20px;
-    position: relative;
-    padding-bottom: 8px;
-  }
-  
-  .lesson-section h2:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background-color: #3498db;
-  }
-  
-  .lesson-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-  }
-  
-  /* 레슨 카드 스타일 */
-  .lesson-card {
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  
-  .lesson-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
-  }
-  
-  .lesson-card h3 {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    color: #333;
-  }
-  
-  .lesson-card p {
-    color: #666;
-    margin: 10px 0;
-    font-size: 0.9rem;
-  }
-  
-  .lesson-card-icon {
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .level-badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: white;
-    display: inline-block;
-  }
-  
-  .beginner {
-    background-color: #27ae60;
-  }
-  
-  .intermediate {
-    background-color: #f39c12;
-  }
-  
-  .advanced {
-    background-color: #e74c3c;
-  }
-  
-  .lesson-card-footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-    color: #888;
-    font-size: 0.8rem;
-  }
-  
-  .no-lessons {
-    color: #888;
-    font-style: italic;
-    text-align: center;
+}
+
+@media (max-width: 480px) {
+  .home-header {
     padding: 20px;
   }
   
-  /* 빠른 시작 FAB 버튼 */
-  .quick-start-fab {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 120px;
-    height: 50px;
-    background-color: #3498db;
-    color: white;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-    z-index: 100;
+  .teachers-grid {
+    grid-template-columns: 1fr;
   }
   
-  .quick-start-fab:hover {
-    background-color: #2980b9;
-    transform: scale(1.05);
+  .search-bar {
+    flex-direction: column;
   }
   
-  .quick-start-fab span {
-    font-weight: bold;
-    font-size: 1rem;
+  .search-button {
+    width: 100%;
+    padding: 12px;
   }
-  
-  /* 반응형 스타일 */
-  @media (max-width: 768px) {
-    .welcome-section {
-      flex-direction: column;
-      text-align: center;
-    }
-    
-    .teacher-container {
-      margin-right: 0;
-      margin-bottom: 15px;
-    }
-    
-    .lesson-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .quick-start-fab {
-      bottom: 20px;
-      right: 20px;
-    }
-  }
+}
