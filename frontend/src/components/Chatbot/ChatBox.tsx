@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import SpeechButton from "./SpeechButton";
 import { sendMessageToAI } from '../../services/api';
 
+
 const ChatBox: React.FC = () => {
   const [conversation, setConversation] = useState<string[]>([]);
   const [userInput, setUserInput] = useState<string>(""); // 입력 필드 상태
@@ -45,7 +46,7 @@ const ChatBox: React.FC = () => {
           placeholder="AI에 전송할 말을 입력하세요!"
           style={{ width: "300px", padding: "0.5rem" }}
         />
-        <button type="submit" style={{ marginLeft: "0.5rem" }}>Send</button>
+        <button type="submit" style={{ marginLeft: "0.5rem" }}>전송</button>
       </form>
 
       <div style={{ marginTop: "1rem" }}>

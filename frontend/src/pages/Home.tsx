@@ -159,7 +159,20 @@ const Home: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [teachers] = useState<Teacher[]>(sampleTeachers);
   const [hoveredTeacher, setHoveredTeacher] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState<boolean>(false);
   
+
+  // 초기화 및 인증 상태 설정
+  // useEffect(() => {
+  //   alert(isAuthenticated);
+  //   // 인증 상태를 LessonContext에 설정
+  //   if (isAuthenticated && !initialized) {
+  //     //alert('Welcome to the English Learning App!');
+  //     setInitialized(true);
+  //   }
+  // }, [isAuthenticated, initialized]);
+
+
   // 환영 메시지 설정
   useEffect(() => {
     if (user && user.name) {
@@ -181,6 +194,13 @@ const Home: React.FC = () => {
     console.log(`Selected teacher ID: ${teacherId}`);
     navigate(`/teacher/${teacherId}`);
   };
+
+  // 나의수업 시작하기
+  const handleSelectLesson = () => {
+    
+    navigate(`/lesson/lesson1`);
+  };
+
   
   // 선생님 필터링
   const filteredTeachers = teachers.filter(teacher => {
@@ -320,7 +340,9 @@ const Home: React.FC = () => {
       </main>
       
       <div className="quick-action-fab">
-        <button onClick={() => navigate('/schedule')}>나의 수업 일정 보기</button>
+        {/* <button onClick={() => navigate('/schedule')}>나의 수업 시작 하기</button> */}
+        <button onClick={handleSelectLesson}>나의수업 시작하기</button>
+        
       </div>
     </div>
   );

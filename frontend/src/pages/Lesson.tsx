@@ -48,20 +48,20 @@ const Lesson: React.FC = () => {
   }, [lessonId]);
 
   // 대화 진행
-  const handleNext = () => {
-    if (!lessonData || currentDialogueIndex >= lessonData.dialogues.length - 1) return;
+  // const handleNext = () => {
+  //   if (!lessonData || currentDialogueIndex >= lessonData.dialogues.length - 1) return;
     
-    setCurrentDialogueIndex(prev => prev + 1);
-    setFeedback('');
-  };
+  //   setCurrentDialogueIndex(prev => prev + 1);
+  //   setFeedback('');
+  // };
 
   // 이전 대화로 돌아가기
-  const handlePrevious = () => {
-    if (currentDialogueIndex <= 0) return;
+  // const handlePrevious = () => {
+  //   if (currentDialogueIndex <= 0) return;
     
-    setCurrentDialogueIndex(prev => prev - 1);
-    setFeedback('');
-  };
+  //   setCurrentDialogueIndex(prev => prev - 1);
+  //   setFeedback('');
+  // };
 
   // // 선생님 말하기 실행
   // const handleTeacherSpeak = async () => {
@@ -211,7 +211,7 @@ const Lesson: React.FC = () => {
           </div>
         </div>
         
-        {/* 대화 내용 */}
+        {/* 대화 내용
         <div className="w-full max-w-md mb-8">
           <div className="bg-blue-100 p-4 rounded-lg mb-4">
             <h3 className="font-bold mb-2">선생님:</h3>
@@ -229,31 +229,30 @@ const Lesson: React.FC = () => {
             <h3 className="font-bold mb-2">내 차례:</h3>
             <p className="mb-2">{currentDialogue.studentLine}</p>
             
-            {/* 학생 응답 표시 */}
             {transcript && (
               <div className="bg-white p-2 rounded mb-2">
                 <p className="text-gray-700">내가 말한 내용: {transcript}</p>
               </div>
             )}
-            
-            {/* 피드백 표시 */}
+                        
             {feedback && (
               <div className="bg-yellow-50 p-2 rounded border border-yellow-200 mt-2">
                 <p className="text-sm">{feedback}</p>
               </div>
             )}
           </div>
-        </div>
+        </div> */}
         
-        {/* 오디오 컨트롤 */}
+        {/* 오디오 컨트롤 
         <AudioControls 
           onStartRecording={handleStartSpeaking}
           onStopRecording={handleStopSpeaking}
           isRecording={isListening}
         />
+        */}
       </div>
       
-      {/* 하단 네비게이션 */}
+      {/* 하단 네비게이션 
       <div className="bg-white p-4 shadow-inner flex justify-between">
         <button 
           onClick={handlePrevious}
@@ -270,6 +269,7 @@ const Lesson: React.FC = () => {
           다음
         </button>
       </div>
+      */}
 
       <div className="bg-white p-4 shadow-inner flex justify-between">
         <ChatBox />
