@@ -5,6 +5,8 @@ from app.api.tts import text_to_speech
 from app.api.tts import text_to_speech_with_pydub
 from app.api.AI_model_DS import  generate_response
 from pydantic import BaseModel
+from typing import Optional
+from google.cloud import texttospeech
 import os
 import tempfile
 
@@ -210,18 +212,180 @@ def get_user_progress(
     
     return progress_list
 
+# class TextRequest(BaseModel):
+#     text: str
+
+
+# @router.post("/tts")
+# def tts(req: TextRequest):
+#     """
+#     텍스트를 음성으로 변환하는 TTS 엔드포인트
+#     """
+    
+#     print("req.text  :: " , req.text)
+#     audio_data = text_to_speech_with_pydub(req.text)
+#     return Response(content=audio_data.read(), media_type="audio/mpeg")
+
+
+
+# 요청 모델 수정
 class TextRequest(BaseModel):
     text: str
+    emotion: Optional[str] = "friendly"
+    useSSML: Optional[bool] = False
+
+# Google Cloud TTS 클라이언트 초기화
+try:
+    # 환경변수가 설정되어 있으면 자동으로 인증
+    # 인증을 위해서는 Google Cloud Platform 에 접속하여 키를 발급받고
+    # 해당 키 파일을 cmd로 등록한다.
+    # set GOOGLE_APPLICATION_CREDENTIALS=D:\conversation_v2\backend\app\api\routes\ssml-key.json
+    client = texttospeech.TextToSpeechClient()
+    print("Google Cloud 인증 성공 (환경변수)")
+except Exception as e:
+    print(f"환경변수 인증 실패: {e}")
+    client = None
+
+# 감정별 음성 설정
+VOICE_SETTINGS = {
+    "happy": {
+        "name": "en-US-Neural2-F",
+        "ssml_gender": texttospeech.SsmlVoiceGender.FEMALE,
+        "pitch": 2.0,
+        "speaking_rate": 1.1
+    },
+    "excited": {
+        "name": "en-US-Neural2-F", 
+        "ssml_gender": texttospeech.SsmlVoiceGender.FEMALE,
+        "pitch": 4.0,
+        "speaking_rate": 1.2
+    },
+    "calm": {
+        "name": "en-US-Neural2-D",
+        "ssml_gender": texttospeech.SsmlVoiceGender.MALE,
+        "pitch": 0.0,
+        "speaking_rate": 0.9
+    },
+    "friendly": {
+        "name": "en-US-Neural2-F",
+        "ssml_gender": texttospeech.SsmlVoiceGender.FEMALE,
+        "pitch": 1.0,
+        "speaking_rate": 1.0
+    },
+    "sad": {
+        "name": "en-US-Neural2-D",
+        "ssml_gender": texttospeech.SsmlVoiceGender.MALE,
+        "pitch": -2.0,
+        "speaking_rate": 0.8
+    },
+    "angry": {
+        "name": "en-US-Neural2-D",
+        "ssml_gender": texttospeech.SsmlVoiceGender.MALE,
+        "pitch": 1.0,
+        "speaking_rate": 1.1
+    },
+    "surprised": {
+        "name": "en-US-Neural2-F",
+        "ssml_gender": texttospeech.SsmlVoiceGender.FEMALE,
+        "pitch": 3.0,
+        "speaking_rate": 1.3
+    },
+    "encouraging": {
+        "name": "en-US-Neural2-F",
+        "ssml_gender": texttospeech.SsmlVoiceGender.FEMALE,
+        "pitch": 1.0,
+        "speaking_rate": 1.0
+    }
+}
+
+def text_to_speech_with_emotion(text: str, emotion: str = "friendly", use_ssml: bool = False):
+    """
+    감정이 포함된 TTS 생성 함수
+    """
+    try:
+        # 감정 설정 가져오기 (기본값: friendly)
+        voice_config = VOICE_SETTINGS.get(emotion, VOICE_SETTINGS["friendly"])
+        
+        print(f"TTS 요청 - 텍스트: {text}, 감정: {emotion}, SSML 사용: {use_ssml}")
+        
+        # 음성 설정
+        voice = texttospeech.VoiceSelectionParams(
+            language_code="en-US",
+            name=voice_config["name"],
+            ssml_gender=voice_config["ssml_gender"]
+        )
+        
+        # 오디오 설정
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3,
+            pitch=voice_config["pitch"],
+            speaking_rate=voice_config["speaking_rate"],
+            effects_profile_id=["telephony-class-application"]
+        )
+        
+        # 입력 텍스트 설정 (SSML 또는 일반 텍스트)
+        if use_ssml:
+            synthesis_input = texttospeech.SynthesisInput(ssml=text)
+        else:
+            synthesis_input = texttospeech.SynthesisInput(text=text)
+        
+        # TTS 요청
+        response = client.synthesize_speech(
+            input=synthesis_input,
+            voice=voice,
+            audio_config=audio_config
+        )
+        
+        return response.audio_content
+        
+    except Exception as e:
+        print(f"TTS 생성 오류: {e}")
+        # 오류 발생 시 기본 TTS로 fallback
+        return text_to_speech_with_pydub(text)
 
 @router.post("/tts")
 def tts(req: TextRequest):
     """
-    텍스트를 음성으로 변환하는 TTS 엔드포인트
+    감정이 포함된 텍스트를 음성으로 변환하는 TTS 엔드포인트
     """
+    print(f"TTS 요청 데이터: {req}")
+    print(f"텍스트: {req.text}")
+    print(f"감정: {req.emotion}")
+    print(f"SSML 사용: {req.useSSML}")
     
-    print("req.text  :: " , req.text)
-    audio_data = text_to_speech_with_pydub(req.text)
-    return Response(content=audio_data.read(), media_type="audio/mpeg")
+    # 감정이 포함된 TTS 생성
+    audio_data = text_to_speech_with_emotion(
+        text=req.text,
+        emotion=req.emotion,
+        use_ssml=req.useSSML
+    )
+    
+    return Response(
+        content=audio_data,
+        media_type="audio/mpeg",
+        headers={
+            "Content-Disposition": "attachment; filename=tts_output.mp3"
+        }
+    )
+
+# 기존 함수와의 호환성을 위한 래퍼 (필요한 경우)
+def text_to_speech_with_pydub(text: str):
+    """
+    기존 TTS 함수 (호환성을 위해 유지)
+    """
+    # 여기에 기존 pydub를 사용한 TTS 로직을 넣으세요
+    # 또는 기본 감정으로 새 함수를 호출
+    #return original_tts_function(text)  # 직접 호출
+    print(text);
+    return
+
+
+
+def original_tts_function(text: str):
+    # 여기에 원래 사용하던 TTS 코드를 복사하세요
+    # 예: pydub, gTTS, pyttsx3 등
+    pass
+
 
 
 @router.post("/chat")
