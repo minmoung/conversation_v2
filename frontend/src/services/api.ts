@@ -247,11 +247,15 @@ export const getUserStats = (userId: string) => api.get(`/api/users/${userId}/st
 export const getUserBadges = (userId: string) => api.get(`/api/users/${userId}/badges`);
 
 // TTS 요청 함수
+/*
 export const fetchTTS = async (text: string): Promise<Blob> => {
   console.log('TTS 요청 텍스트:', text);
   const response = await api.post('/api/lessons/tts', { text }, { responseType: 'blob' });
   return response.data; // Blob 데이터 반환
 };
+
+
+
 
 // AI에 메시지 전송 함수
 export const sendMessageToAI = async (text: string) => {
@@ -278,15 +282,212 @@ export const sendMessageToAI = async (text: string) => {
   return response.data;
   //return {reply:tts};
 };
+*/
 
-// AI에 메시지 전송 함수(Orignal)
-// export const sendMessageToAI = async (text: string) => {
-//   const response = await fetch("http://127.0.0.1:8000/chat", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ text }),
-//   });
-//   return response.json();
-// };
 
+
+
+
+
+
+// 감정 타입 정의
+export enum EmotionType {
+  HAPPY = 'happy',
+  SAD = 'sad',
+  EXCITED = 'excited',
+  CALM = 'calm',
+  ANGRY = 'angry',
+  SURPRISED = 'surprised',
+  ENCOURAGING = 'encouraging',
+  FRIENDLY = 'friendly'
+}
+
+// 감정별 SSML 설정
+const emotionSettings = {
+  [EmotionType.HAPPY]: {
+    rate: '1.1',
+    pitch: '+2st',
+    volume: '+2dB',
+    emphasis: 'moderate'
+  },
+  [EmotionType.SAD]: {
+    rate: '0.8',
+    pitch: '-2st',
+    volume: '-2dB',
+    emphasis: 'reduced'
+  },
+  [EmotionType.EXCITED]: {
+    rate: '1.2',
+    pitch: '+4st',
+    volume: '+4dB',
+    emphasis: 'strong'
+  },
+  [EmotionType.CALM]: {
+    rate: '0.9',
+    pitch: '0st',
+    volume: '0dB',
+    emphasis: 'none'
+  },
+  [EmotionType.ANGRY]: {
+    rate: '1.1',
+    pitch: '+1st',
+    volume: '+3dB',
+    emphasis: 'strong'
+  },
+  [EmotionType.SURPRISED]: {
+    rate: '1.3',
+    pitch: '+3st',
+    volume: '+3dB',
+    emphasis: 'strong'
+  },
+  [EmotionType.ENCOURAGING]: {
+    rate: '1.0',
+    pitch: '+1st',
+    volume: '+1dB',
+    emphasis: 'moderate'
+  },
+  [EmotionType.FRIENDLY]: {
+    rate: '1.0',
+    pitch: '+1st',
+    volume: '+1dB',
+    emphasis: 'moderate'
+  }
+};
+
+// 텍스트에서 감정 분석하는 함수
+const analyzeEmotion = (text: string): EmotionType => {
+  const lowerText = text.toLowerCase();
+  
+  // 감정 키워드 매핑
+  const emotionKeywords = {
+    [EmotionType.HAPPY]: ['good', 'great', 'wonderful', 'excellent', 'fantastic', 'amazing', '😊', '😄', '🌞', '좋다', '훌륭', '멋지다'],
+    [EmotionType.EXCITED]: ['wow', 'awesome', 'incredible', 'fantastic', '!', 'amazing', 'super', '와', '대단', '놀라워'],
+    [EmotionType.SAD]: ['sorry', 'sad', 'unfortunately', 'disappointed', '😢', '미안', '슬프다', '안타깝'],
+    [EmotionType.SURPRISED]: ['surprise', 'wow', 'unexpected', 'amazing', '?!', '놀랍', '깜짝', '어머'],
+    [EmotionType.ENCOURAGING]: ['you can do it', 'keep going', 'try again', 'don\'t give up', '할 수 있어', '계속해', '포기하지마'],
+    [EmotionType.FRIENDLY]: ['hello', 'hi', 'nice to meet', 'friend', '안녕', '반가워', '친구'],
+    [EmotionType.CALM]: ['relax', 'calm', 'peaceful', 'slowly', '천천히', '진정', '평온']
+  };
+
+  // 각 감정별로 키워드 매칭 점수 계산
+  let maxScore = 0;
+  let detectedEmotion = EmotionType.FRIENDLY; // 기본값
+
+  for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+    let score = 0;
+    keywords.forEach(keyword => {
+      if (lowerText.includes(keyword)) {
+        score += 1;
+      }
+    });
+    
+    if (score > maxScore) {
+      maxScore = score;
+      detectedEmotion = emotion as EmotionType;
+    }
+  }
+
+  // 특별한 패턴 체크
+  if (text.includes('!') && text.includes('?')) {
+    detectedEmotion = EmotionType.SURPRISED;
+  } else if ((text.match(/!/g) || []).length >= 2) {
+    detectedEmotion = EmotionType.EXCITED;
+  } else if (text.includes('?')) {
+    detectedEmotion = EmotionType.FRIENDLY;
+  }
+
+  return detectedEmotion;
+};
+
+// SSML 생성 함수
+const generateSSML = (text: string, emotion: EmotionType): string => {
+  const settings = emotionSettings[emotion];
+  
+  return `
+    <speak>
+      <prosody rate="${settings.rate}" pitch="${settings.pitch}" volume="${settings.volume}">
+        <emphasis level="${settings.emphasis}">
+          ${text}
+        </emphasis>
+      </prosody>
+    </speak>
+  `.trim();
+};
+
+// 감정이 포함된 TTS 요청 함수
+export const fetchEmotionalTTS = async (text: string, customEmotion?: EmotionType): Promise<Blob> => {
+  console.log('TTS 요청 텍스트:', text);
+  
+  // 감정 분석 (커스텀 감정이 제공되지 않은 경우)
+  const emotion = customEmotion || analyzeEmotion(text);
+  console.log('감지된 감정:', emotion);
+  
+  // SSML 생성
+  const ssmlText = generateSSML(text, emotion);
+  console.log('생성된 SSML:', ssmlText);
+  
+  // 서버에 SSML과 감정 정보 전송
+  const response = await api.post('/api/lessons/tts', { 
+    text: ssmlText,
+    emotion: emotion,
+    useSSML: true 
+  }, { responseType: 'blob' });
+  
+  return response.data;
+};
+
+// 기존 TTS 함수 (호환성을 위해 유지)
+export const fetchTTS = async (text: string): Promise<Blob> => {
+  return fetchEmotionalTTS(text);
+};
+
+// AI에 메시지 전송 함수 (수정된 버전)
+export const sendMessageToAI = async (text: string) => {
+  const response = await api.post('/api/lessons/chat', { text });
+  
+  console.log('AI 응답 1 :', response);
+  console.log('AI 응답 2 :', response.data);
+
+  // 감정이 포함된 TTS 사용
+  const audioBlob = await fetchEmotionalTTS(response.data.reply);
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = new Audio(audioUrl);
+  audio.play();
+    
+  return response.data;
+};
+
+// 특정 감정으로 TTS 생성하는 헬퍼 함수들
+export const playHappyTTS = async (text: string) => {
+  const audioBlob = await fetchEmotionalTTS(text, EmotionType.HAPPY);
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = new Audio(audioUrl);
+  audio.play();
+};
+
+export const playExcitedTTS = async (text: string) => {
+  const audioBlob = await fetchEmotionalTTS(text, EmotionType.EXCITED);
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = new Audio(audioUrl);
+  audio.play();
+};
+
+export const playCalmTTS = async (text: string) => {
+  const audioBlob = await fetchEmotionalTTS(text, EmotionType.CALM);
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = new Audio(audioUrl);
+  audio.play();
+};
+
+// 사용 예시
+/*
+// 자동 감정 분석
+await fetchEmotionalTTS("Hello! How are you today?"); // FRIENDLY로 분석됨
+
+// 수동 감정 지정
+await fetchEmotionalTTS("Great job!", EmotionType.EXCITED);
+
+// 특정 감정으로 재생
+await playHappyTTS("Congratulations! You did it!");
+*/
 
