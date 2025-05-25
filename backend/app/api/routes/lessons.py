@@ -239,7 +239,9 @@ try:
     # 환경변수가 설정되어 있으면 자동으로 인증
     # 인증을 위해서는 Google Cloud Platform 에 접속하여 키를 발급받고
     # 해당 키 파일을 cmd로 등록한다.
-    # set GOOGLE_APPLICATION_CREDENTIALS=D:\conversation_v2\backend\app\api\routes\ssml-key.json
+    # window용 set GOOGLE_APPLICATION_CREDENTIALS=D:\conversation_v2\backend\app\api\routes\ssml-key.json
+    # Linux/macOS용 export GOOGLE_APPLICATION_CREDENTIALS="D:\conversation_v2\backend\app\api\routes\ssml-key.json"
+    # PowerShell용 $env:GOOGLE_APPLICATION_CREDENTIALS = "D:\conversation_v2\backend\app\api\routes\ssml-key.json"
     client = texttospeech.TextToSpeechClient()
     print("Google Cloud 인증 성공 (환경변수)")
 except Exception as e:
