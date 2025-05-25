@@ -425,6 +425,16 @@ export const fetchEmotionalTTS = async (text: string, customEmotion?: EmotionTyp
   // SSML 생성
   const ssmlText = generateSSML(text, emotion);
   console.log('생성된 SSML:', ssmlText);
+
+  // const ssmlText = `
+  // <speak>
+  //   <prosody pitch="+6st" rate="1.3" volume="+2dB">
+  //   `
+  //     + generateSSML(text, emotion) +
+  //   `  
+  //   </prosody>
+  // </speak>
+  // `;
   
   // 서버에 SSML과 감정 정보 전송
   const response = await api.post('/api/lessons/tts', { 
